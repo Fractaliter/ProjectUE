@@ -70,8 +70,19 @@ WSGI_APPLICATION = 'crm.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'mssql',
+        'NAME': 'ProjectUEDB',  # Database name
+        'USER': '',  # MSSQL doesn't use user & password with Trusted_Connection
+        'PASSWORD': '',  # Leave blank for Trusted_Connection
+        'HOST': 'localhost',  # Server name
+        'PORT': '',  # Default port for MSSQL is used if left blank
+
+        'OPTIONS': {
+            'driver': 'ODBC Driver 17 for SQL Server',
+            'Trusted_Connection': 'yes',  # Uses Windows Authentication
+            'MultipleActiveResultSets': True,  # Enables support for multiple active result sets
+            'Encrypt': False,  # Disables encryption for the connection
+        },
     }
 }
 
