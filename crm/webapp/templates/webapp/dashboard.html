@@ -8,7 +8,7 @@
 
     <a class="btn btn-outline-primary btn-sm" href="{% url 'create-record' %}">
 
-        Create a new record &nbsp; <i class="fa fa-plus-circle" aria-hidden="true"></i>
+        Create a new contact record &nbsp; <i class="fa fa-plus-circle" aria-hidden="true"></i>
 
     </a>
 
@@ -68,10 +68,12 @@
         {% endif %}
 
 
+
         </tbody>
 
 
     </table>
 
 
+    <h1><a href="{% url 'event_list' %}">Event Management System</a></h1>
 {% endblock %}

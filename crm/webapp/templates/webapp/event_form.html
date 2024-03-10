@@ -1,0 +1,9 @@
+{% extends 'webapp/base.html' %}
+{% block content %}
+    <h2>{{ form.instance.title|default:"New Event" }}</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save</button>
+    </form>
+{% endblock %}
