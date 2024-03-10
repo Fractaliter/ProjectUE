@@ -110,7 +110,7 @@ def create_contact(request):
 
             messages.success(request, "Your contact was created!")
 
-            return redirect("dashboard")
+            return redirect("contact_dashboard")
 
     context = {'form': form}
 
@@ -166,7 +166,7 @@ def delete_contact(request, pk):
 
     messages.success(request, "Your contact was deleted!")
 
-    return redirect("dashboard")
+    return redirect("contact_dashboard")
 
 
 
