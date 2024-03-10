@@ -13,18 +13,15 @@ urlpatterns = [
 
     path('user-logout', views.user_logout, name="user-logout"),
 
-    # CRUD
+    # CONTACT CRUD
 
-    path('dashboard', views.dashboard, name="dashboard"),
+    path('contact_dashboard', views.contact_dashboard, name="contact_dashboard"),
+    path('create-contact', views.create_contact, name="create-contact"),
+    path('update-contact/<int:pk>', views.update_contact, name='update-contact'),
+    path('contact/<int:pk>', views.singular_contact, name="contact"),
+    path('delete-contact/<int:pk>', views.delete_contact, name="delete-contact"),
 
-    path('create-record', views.create_record, name="create-record"),
-
-    path('update-record/<int:pk>', views.update_record, name='update-record'),
-
-    path('record/<int:pk>', views.singular_record, name="record"),
-
-    path('delete-record/<int:pk>', views.delete_record, name="delete-record"),
-
+    path('event_dashboard', views.event_dashboard, name="event_dashboard"),
     path('event_list', views.event_list, name='event_list'),
     path('event/<int:event_id>/', views.event_detail, name='event_detail'),
     path('create_event/', views.create_event, name='create_event'),

@@ -1,0 +1,55 @@
+{% extends 'webapp/base.html' %}
+
+{% block content %}
+
+    <div class="card">
+
+
+        <div class="card-body">
+
+            <i class="fa fa-user-circle-o" aria-hidden="true"></i> &nbsp;
+
+            <strong>   
+
+                {{contact.last_name|upper}}
+    
+                {{contact.first_name}}
+    
+            </strong>
+    
+            <hr> 
+
+            <p> <strong> ID: </strong> {{contact.id}} </p>
+
+            <p> <strong> Email: </strong> {{contact.email}} </p>
+
+            <p> <strong> Phone number: </strong> {{contact.phone}} </p>
+
+            <p> <strong> Address: </strong> {{contact.address}} </p>
+            <p> <strong> City: </strong> {{contact.city}} </p>
+            <p> <strong> Province: </strong> {{contact.province}} </p>
+            <p> <strong> Country: </strong> {{contact.country}} </p>
+
+            <p> <strong> Creation date: </strong> {{contact.creation_date}} </p>
+
+
+        </div>
+
+
+    </div>
+
+    <br>
+
+    <a href="{% url 'contact_dashboard' %}" class="btn btn-secondary"> Return &nbsp; <i class="fa fa-arrow-left" aria-hidden="true"></i> </a>
+
+    &nbsp;
+
+    <a href="{% url 'update-contact' contact.id %}" class="btn btn-info"> Update contact &nbsp; <i class="fa fa-plus" aria-hidden="true"></i> </a>
+
+    &nbsp;
+
+    <a href="{% url 'delete-contact' contact.id %}" class="btn btn-danger"> Delete &nbsp;<i class="fa fa-minus-square" aria-hidden="true"></i> </a>
+
+
+{% endblock %}
+

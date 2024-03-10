@@ -1,7 +1,7 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
-from .models import Record,Event
+from .models import Contact,Event
 
 from django import forms
 
@@ -26,23 +26,23 @@ class LoginForm(AuthenticationForm):
     password = forms.CharField(widget=PasswordInput())
 
 
-# - Create a record
+# - Create a contact
 
-class CreateRecordForm(forms.ModelForm):
+class CreateContactForm(forms.ModelForm):
 
     class Meta:
 
-        model = Record
+        model = Contact
         fields = ['first_name', 'last_name', 'email', 'phone', 'address', 'city', 'province', 'country']
 
 
-# - Update a record
+# - Update a contact
 
-class UpdateRecordForm(forms.ModelForm):
+class UpdateContactForm(forms.ModelForm):
 
     class Meta:
 
-        model = Record
+        model = Contact
         fields = ['first_name', 'last_name', 'email', 'phone', 'address', 'city', 'province', 'country']
 
 class EventForm(forms.ModelForm):

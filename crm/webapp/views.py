@@ -1,12 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import CreateUserForm, LoginForm, CreateRecordForm, UpdateRecordForm,EventForm
+from .forms import CreateUserForm, LoginForm, CreateContactForm, UpdateContactForm,EventForm
 
 from django.contrib.auth.models import auth
 from django.contrib.auth import authenticate
 
 from django.contrib.auth.decorators import login_required
 
-from .models import Record,Event, Attendee
+from .models import Contact,Event, Attendee
 
 from django.contrib import messages
 
@@ -63,97 +63,108 @@ def my_login(request):
 
                 auth.login(request, user)
 
-                return redirect("dashboard")
+                return redirect("contact_dashboard")
 
     context = {'form':form}
 
     return render(request, 'webapp/my-login.html', context=context)
 
 
-# - Dashboard
+# - Contact Dashboard
 
 @login_required(login_url='my-login')
-def dashboard(request):
+def contact_dashboard(request):
 
-    my_records = Record.objects.all()
+    my_contacts = Contact.objects.all()
 
-    context = {'records': my_records}
+    context = {'contacts': my_contacts}
 
-    return render(request, 'webapp/dashboard.html', context=context)
+    return render(request, 'webapp/contact_dashboard.html', context=context)
 
-
-# - Create a record 
+# - Event Dashboard
 
 @login_required(login_url='my-login')
-def create_record(request):
+def event_dashboard(request):
 
-    form = CreateRecordForm()
+    my_events = Event.objects.all()
+
+    context = {'events': my_events}
+
+    return render(request, 'webapp/event_dashboard.html', context=context)
+
+
+# - Create a contact 
+
+@login_required(login_url='my-login')
+def create_contact(request):
+
+    form = CreateContactForm()
 
     if request.method == "POST":
 
-        form = CreateRecordForm(request.POST)
+        form = CreateContactForm(request.POST)
 
         if form.is_valid():
 
             form.save()
 
-            messages.success(request, "Your record was created!")
+            messages.success(request, "Your contact was created!")
 
             return redirect("dashboard")
 
     context = {'form': form}
 
-    return render(request, 'webapp/create-record.html', context=context)
+    return render(request, 'webapp/create-contact.html', context=context)
 
 
-# - Update a record 
+# - Update a contact 
 
 @login_required(login_url='my-login')
-def update_record(request, pk):
+def update_contact(request, pk):
 
-    record = Record.objects.get(id=pk)
+    contact = Contact.objects.get(id=pk)
 
-    form = UpdateRecordForm(instance=record)
+    form = UpdateContactForm(instance=contact)
 
     if request.method == 'POST':
 
-        form = UpdateRecordForm(request.POST, instance=record)
+        form = UpdateContactForm(request.POST, instance=contact)
 
         if form.is_valid():
 
             form.save()
 
-            messages.success(request, "Your record was updated!")
+            messages.success(request, "Your contact was updated!")
 
-            return redirect("dashboard")
+            return redirect("contact_dashboard")
         
     context = {'form':form}
 
-    return render(request, 'webapp/update-record.html', context=context)
+    return render(request, 'webapp/update-contact.html', context=context)
 
 
-# - Read / View a singular record
-
-@login_required(login_url='my-login')
-def singular_record(request, pk):
-
-    all_records = Record.objects.get(id=pk)
-
-    context = {'record':all_records}
-
-    return render(request, 'webapp/view-record.html', context=context)
-
-
-# - Delete a record
+# - Read / View a singular contact
 
 @login_required(login_url='my-login')
-def delete_record(request, pk):
+def singular_contact(request, pk):
 
-    record = Record.objects.get(id=pk)
+    all_contacts = Contact.objects.get(id=pk)
 
-    record.delete()
+    context = {'contact':all_contacts}
 
-    messages.success(request, "Your record was deleted!")
+    return render(request, 'webapp/view-contact.html', context=context)
+
+
+# - Delete a contact
+
+@login_required(login_url='my-login')
+def delete_contact(request, pk):
+
+    contact = Contact.objects.get(id=pk)
+
+    contact.delete()
+
+    messages.success(request, "Your contact was deleted!")
 
     return redirect("dashboard")
 
@@ -190,6 +201,7 @@ def create_event(request):
     else:
         form = EventForm()
     return render(request, 'webapp/event_form.html', {'form': form})
+
 @login_required
 def register_event(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
