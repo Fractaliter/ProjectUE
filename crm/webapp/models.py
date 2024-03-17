@@ -1,8 +1,13 @@
 from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import User
 
 class Contact(models.Model):
-
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,  # This references the currently active user model
+        on_delete=models.CASCADE,  # Ensures that the contact is deleted when the user is deleted
+        related_name='contact'     # Allows you to access the contact from the User model easily
+    )
     creation_date = models.DateTimeField(auto_now_add=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)

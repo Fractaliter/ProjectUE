@@ -25,7 +25,11 @@ class LoginForm(AuthenticationForm):
     username = forms.CharField(widget=TextInput())
     password = forms.CharField(widget=PasswordInput())
 
-
+class ContactForm(forms.ModelForm):
+    class Meta:
+        model = Contact
+        exclude = ['user']
+        
 # - Create a contact
 
 class CreateContactForm(forms.ModelForm):
@@ -33,6 +37,7 @@ class CreateContactForm(forms.ModelForm):
     class Meta:
 
         model = Contact
+        exclude = ['user']
         fields = ['first_name', 'last_name', 'email', 'phone', 'address', 'city', 'province', 'country']
 
 
@@ -43,6 +48,7 @@ class UpdateContactForm(forms.ModelForm):
     class Meta:
 
         model = Contact
+        exclude = ['user']
         fields = ['first_name', 'last_name', 'email', 'phone', 'address', 'city', 'province', 'country']
 
 class EventForm(forms.ModelForm):

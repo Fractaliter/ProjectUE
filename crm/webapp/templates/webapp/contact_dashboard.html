@@ -5,13 +5,15 @@
     <h5> Welcome, {{user}}! 👋 </h5>
 
     <hr>
-
-    <a class="btn btn-outline-primary btn-sm" href="{% url 'create-contact' %}">
+    {% if not contact_exists %}
+    <a class="btn btn-outline-primary btn-sm" href="{% url 'create_contact' %}">
 
         Create a new contact &nbsp; <i class="fa fa-plus-circle" aria-hidden="true"></i>
 
     </a>
-
+    {% else %}
+    <p>You have already provided contact information.</p>
+    {% endif %}
     <hr> 
 
     <table class="table table-hover table-bordered">

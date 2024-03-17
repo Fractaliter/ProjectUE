@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import CreateUserForm, LoginForm, CreateContactForm, UpdateContactForm,EventForm
+from .forms import CreateUserForm, LoginForm, CreateContactForm,ContactForm, UpdateContactForm,EventForm
 
 from django.contrib.auth.models import auth
 from django.contrib.auth import authenticate
@@ -74,10 +74,10 @@ def my_login(request):
 
 @login_required(login_url='my-login')
 def contact_dashboard(request):
+    contact_exists = Contact.objects.filter(user=request.user).exists()
+    my_contacts = Contact.objects.filter(user=request.user)
 
-    my_contacts = Contact.objects.all()
-
-    context = {'contacts': my_contacts}
+    context = {'contacts': my_contacts,'contact_exists':contact_exists}
 
     return render(request, 'webapp/contact_dashboard.html', context=context)
 
@@ -98,24 +98,21 @@ def event_dashboard(request):
 @login_required(login_url='my-login')
 def create_contact(request):
 
-    form = CreateContactForm()
-
     if request.method == "POST":
-
         form = CreateContactForm(request.POST)
-
         if form.is_valid():
-
-            form.save()
+            contact = form.save(commit=False)  # Save the form temporarily without committing to the database
+            contact.user = request.user  # Assign the logged-in user to the contact
+            contact.save()  # Now save the contact to the database
+         
 
             messages.success(request, "Your contact was created!")
 
             return redirect("contact_dashboard")
+    else:
+        form = ContactForm()
 
-    context = {'form': form}
-
-    return render(request, 'webapp/create-contact.html', context=context)
-
+    return render(request, 'webapp/create_contact.html', {'form': form})
 
 # - Update a contact 
 
@@ -140,7 +137,7 @@ def update_contact(request, pk):
         
     context = {'form':form}
 
-    return render(request, 'webapp/update-contact.html', context=context)
+    return render(request, 'webapp/update_contact.html', context=context)
 
 
 # - Read / View a singular contact
@@ -152,7 +149,7 @@ def singular_contact(request, pk):
 
     context = {'contact':all_contacts}
 
-    return render(request, 'webapp/view-contact.html', context=context)
+    return render(request, 'webapp/view_contact.html', context=context)
 
 
 # - Delete a contact
