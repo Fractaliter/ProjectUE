@@ -26,6 +26,7 @@
                 <th scope="col"> Date </th>
                 <th scope="col"> Time </th>
                 <th scope="col"> Location </th>
+                <th scope="col"> Organizer </th>
 
                 <th scope="col"> View </th>
 
@@ -50,6 +51,7 @@
                 <td> {{event.date}} </td>
                 <td> {{event.time}} </td>
                 <td> {{event.location}} </td>
+                <td> {{ event.organizer }} </td>
 
                 <td> <a class="btn btn-success btn-sm" href="{% url 'event_detail' event.id %}"> <i class="fa fa-eye" aria-hidden="true"></i> </a> </td>
 
