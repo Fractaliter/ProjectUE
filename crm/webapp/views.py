@@ -10,6 +10,7 @@ from .models import Contact,Event, Attendee
 
 from django.contrib import messages
 
+from .spotify_utils import get_artist_info  # Assuming get_artist_info is in spotify_utils.py
 
 
 # - Homepage 
@@ -205,5 +206,14 @@ def register_event(request, event_id):
     Attendee.objects.get_or_create(user=request.user, event=event)
     return redirect('event_detail', event_id=event.id)
 
-
-
+def artist_search(request):
+    artist = None  # Default to None if no search has been made or if no artist is found
+    
+    if request.method == 'POST':
+        artist_name = request.POST.get('artist_name')  # Get the artist name from the submitted form data
+        artist = get_artist_info(artist_name)  # Use the function to fetch the artist information
+        
+        # If get_artist_info returns None (artist not found), keep artist as None
+        # Otherwise, artist will be the dictionary with the artist's information
+        
+    return render(request, 'webapp/artist_search.html', {'artist': artist})
