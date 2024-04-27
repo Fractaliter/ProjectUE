@@ -33,7 +33,8 @@ class Event(models.Model):
     description = models.TextField()
     date = models.DateField()
     time = models.TimeField()
-    location = models.CharField(max_length=200)
+    project = models.CharField(max_length=200)
+    duration = models.IntegerField(default=1)
     organizer = models.ForeignKey(User, on_delete=models.CASCADE)
     def __str__(self):
         return self.title
