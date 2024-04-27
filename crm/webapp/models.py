@@ -2,6 +2,13 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
 
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    is_verified = models.BooleanField(default=False)
+    # Add more fields as needed
+
+# Remember to create a signal to automatically create a UserProfile when a User is created
+
 class Contact(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,  # This references the currently active user model
