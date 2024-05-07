@@ -1,0 +1,50 @@
+{% extends 'webapp/base.html' %}
+
+{% block content %}
+
+    <h5> Welcome, {{user}}! 👋 </h5>
+
+    <hr>
+
+    <h5> Here will appear your statistics! </h5>
+
+    <hr> 
+
+    
+<!-- Filters -->
+<form method="get">
+    <label for="project">Filter by Project:</label>
+    <select name="project" id="project">
+        <option value="">All Projects</option>
+        {% for project in projects %}
+        <option value="{{ project.id }}" {% if selected_project|stringformat:"s" == project.id|stringformat:"s" %}selected{% endif %}>{{ project.name }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="organizer">Filter by Organizer:</label>
+    <select name="organizer" id="organizer">
+        <option value="">All Organizers</option>
+        {% for organizer in organizers %}
+        <option value="{{ organizer.id }}" {% if selected_organizer == organizer.id|stringformat:"s" %}selected{% endif %}>{{ organizer.username }}</option>
+        {% endfor %}
+    </select>
+
+    <button type="submit">Filter</button>
+</form>
+
+<!-- Display statistics -->
+<h3>Event Count by Project</h3>
+<ul>
+    {% for stat in event_count_by_project %}
+    <li>{{ stat.project__name }}: {{ stat.total }}</li>
+    {% endfor %}
+</ul>
+
+<h3>Event Count by Organizer</h3>
+<ul>
+    {% for stat in event_count_by_organizer %}
+    <li>{{ stat.organizer__username }}: {{ stat.total }}</li>
+    {% endfor %}
+</ul>
+
+{% endblock %}

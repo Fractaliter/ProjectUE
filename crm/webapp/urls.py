@@ -15,7 +15,7 @@ urlpatterns = [
 
 
 
-    # EVENT  CRUD
+    # CONTACT  CRUD
     path('contact_dashboard', views.contact_dashboard, name="contact_dashboard"),
     path('create_contact', views.create_contact, name="create_contact"),
     path('update_contact/<int:pk>', views.update_contact, name='update_contact'),
@@ -28,6 +28,10 @@ urlpatterns = [
     path('event/<int:event_id>/', views.event_detail, name='event_detail'),
     path('create_event/', views.create_event, name='create_event'),
     path('register_event/<int:event_id>/', views.register_event, name='register_event'),
+
+    path('create_project/', views.create_project, name='create_project'),
+    
+    path('statistics_dashboard', views.statistics_dashboard, name="statistics_dashboard"),
     
     path('artist-search/', views.artist_search, name='artist_search_url'),
 

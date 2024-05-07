@@ -1,12 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import CreateUserForm, LoginForm, CreateContactForm,ContactForm, UpdateContactForm,EventForm
-
+from .forms import CreateUserForm, LoginForm, CreateContactForm,ContactForm, UpdateContactForm,EventForm,ProjectForm
+from django.db.models import Count
 from django.contrib.auth.models import auth
 from django.contrib.auth import authenticate
 
 from django.contrib.auth.decorators import login_required
 
-from .models import Contact,Event, Attendee
+from .models import Contact,Event,Attendee,Project,User
 
 from django.contrib import messages
 
@@ -88,10 +88,12 @@ def contact_dashboard(request):
 def event_dashboard(request):
 
     my_events = Event.objects.all()
+    my_projects = Project.objects.all()
 
-    context = {'events': my_events}
+    context = {'events': my_events,'projects':my_projects}
 
     return render(request, 'webapp/event_dashboard.html', context=context)
+
 
 
 # - Create a contact 
@@ -201,6 +203,19 @@ def create_event(request):
     return render(request, 'webapp/event_form.html', {'form': form})
 
 @login_required
+def create_project(request):
+    if request.method == 'POST':
+        form = ProjectForm(request.POST)
+        if form.is_valid():
+            project = form.save(commit=False)
+            project.save()
+            return redirect('event_dashboard')
+    else:
+        form = ProjectForm()
+    return render(request, 'webapp/project_form.html', {'form': form})
+
+
+@login_required
 def register_event(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
     Attendee.objects.get_or_create(user=request.user, event=event)
@@ -208,12 +223,47 @@ def register_event(request, event_id):
 
 def artist_search(request):
     artist = None  # Default to None if no search has been made or if no artist is found
-    
     if request.method == 'POST':
         artist_name = request.POST.get('artist_name')  # Get the artist name from the submitted form data
         artist = get_artist_info(artist_name)  # Use the function to fetch the artist information
         
         # If get_artist_info returns None (artist not found), keep artist as None
         # Otherwise, artist will be the dictionary with the artist's information
-        
     return render(request, 'webapp/artist_search.html', {'artist': artist})
+
+# - Statistics Dashboard
+@login_required
+def statistics_dashboard(request):
+    # Get all projects and organizers for dropdown filters
+    projects = Project.objects.all()
+    organizers = User.objects.all()
+
+    selected_project = request.GET.get('project')
+    selected_organizer = request.GET.get('organizer')
+
+    # Start with all events
+    events = Event.objects.all()
+
+    # Filter events by selected project if applicable
+    if selected_project:
+        events = events.filter(project_id=selected_project)
+
+    # Filter events by selected organizer if applicable
+    if selected_organizer:
+        events = events.filter(organizer_id=selected_organizer)
+
+    # Additional statistics (modify as needed)
+    event_count_by_project = Event.objects.values('project__name').annotate(total=Count('id')).order_by('-total')
+    event_count_by_organizer = Event.objects.values('organizer__username').annotate(total=Count('id')).order_by('-total')
+
+    context = {
+        'projects': projects,
+        'organizers': organizers,
+        'events': events,
+        'event_count_by_project': event_count_by_project,
+        'event_count_by_organizer': event_count_by_organizer,
+        'selected_project': selected_project,
+        'selected_organizer': selected_organizer,
+    }
+
+    return render(request, 'webapp/statistics_dashboard.html', context)
