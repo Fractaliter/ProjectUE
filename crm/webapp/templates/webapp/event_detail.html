@@ -13,11 +13,4 @@
             <li>No attendees yet.</li>
         {% endfor %}
     </ul>
-    {% if user.is_authenticated %}
-        {% if user != event.organizer %}
-            <a href="{% url 'register_event' event.id %}">Register for Event</a>
-        {% endif %}
-    {% else %}
-        <p>Please log in to register for this event.</p>
-    {% endif %}
 {% endblock %}

@@ -34,6 +34,7 @@ urlpatterns = [
     path('statistics_dashboard', views.statistics_dashboard, name="statistics_dashboard"),
     
     path('artist-search/', views.artist_search, name='artist_search_url'),
+    path('export-csv/', views.export_events_csv, name='export_events_csv'),
 
     
 

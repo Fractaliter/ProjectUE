@@ -1,6 +1,7 @@
+import csv
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import CreateUserForm, LoginForm, CreateContactForm,ContactForm, UpdateContactForm,EventForm,ProjectForm
-from django.db.models import Count
+from django.db.models import Count, Sum
 from django.contrib.auth.models import auth
 from django.contrib.auth import authenticate
 
@@ -12,6 +13,7 @@ from django.contrib import messages
 
 from .spotify_utils import get_artist_info  # Assuming get_artist_info is in spotify_utils.py
 
+from django.http import HttpResponse
 
 # - Homepage 
 
@@ -241,8 +243,11 @@ def statistics_dashboard(request):
     selected_project = request.GET.get('project')
     selected_organizer = request.GET.get('organizer')
 
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
     # Start with all events
     events = Event.objects.all()
+    
 
     # Filter events by selected project if applicable
     if selected_project:
@@ -256,14 +261,65 @@ def statistics_dashboard(request):
     event_count_by_project = Event.objects.values('project__name').annotate(total=Count('id')).order_by('-total')
     event_count_by_organizer = Event.objects.values('organizer__username').annotate(total=Count('id')).order_by('-total')
 
+  # Get the count and total duration of events by project
+    event_stats_by_project = Event.objects.values('project__name') \
+                                          .annotate(total_events=Count('id'),
+                                                    total_duration=Sum('duration')) \
+                                          .order_by('-total_events')
+    
+    # Filtering by date range
+    if start_date:
+        events = events.filter(date__gte=start_date)
+    if end_date:
+        events = events.filter(date__lte=end_date)
+        
+    total_duration = events.aggregate(Sum('duration'))['duration__sum'] or 0
     context = {
         'projects': projects,
         'organizers': organizers,
         'events': events,
         'event_count_by_project': event_count_by_project,
         'event_count_by_organizer': event_count_by_organizer,
+        'event_stats_by_project': event_stats_by_project,
         'selected_project': selected_project,
         'selected_organizer': selected_organizer,
+        'start_date': start_date,
+        'end_date': end_date,
+        'total_duration': total_duration  # Total duration of filtered events
     }
 
     return render(request, 'webapp/statistics_dashboard.html', context)
+
+def export_events_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="filtered_tasks.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['Title', 'Description', 'Date', 'Time', 'Project', 'Duration', 'Organizer'])
+
+    events = Event.objects.all()
+
+    if request.GET.get('project'):
+        events = events.filter(project_id=request.GET['project'])
+
+    if request.GET.get('organizer'):
+        events = events.filter(organizer_id=request.GET['organizer'])
+
+    if request.GET.get('start_date'):
+        events = events.filter(date__gte=request.GET['start_date'])
+
+    if request.GET.get('end_date'):
+        events = events.filter(date__lte=request.GET['end_date'])
+
+    for event in events:
+        writer.writerow([
+            event.title,
+            event.description,
+            event.date,
+            event.time,
+            event.project.name,
+            event.duration,
+            event.organizer.username
+        ])
+
+    return response
