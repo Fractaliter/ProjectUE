@@ -72,11 +72,14 @@
 
     </table>
     <hr>
+    
+    {% if user.is_superuser %}
     <a class="btn btn-outline-primary btn-sm" href="{% url 'create_project' %}">
 
         Create a new project &nbsp; <i class="fa fa-plus-circle" aria-hidden="true"></i>
 
     </a>
+    {% endif %}
     <hr>
     <br>
     Projects:

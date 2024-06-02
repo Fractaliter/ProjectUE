@@ -1,13 +1,13 @@
 {% extends 'webapp/base.html' %}
 {% block content %}
-    <h2>Events</h2>
+    <h2>Tasks</h2>
     <ul>
         {% for event in events %}
             <li>
                 <a href="{% url 'event_detail' event.id %}">{{ event.title }}</a>
             </li>
         {% empty %}
-            <li>No events found.</li>
+            <li>No tasks found.</li>
         {% endfor %}
     </ul>
 {% endblock %}
