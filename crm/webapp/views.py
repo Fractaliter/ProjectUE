@@ -89,7 +89,8 @@ def contact_dashboard(request):
 @login_required(login_url='my-login')
 def event_dashboard(request):
 
-    my_events = Event.objects.all()
+    my_events = Event.objects.all().filter(organizer_id=request.user.id)
+
     my_projects = Project.objects.all()
 
     context = {'events': my_events,'projects':my_projects}
