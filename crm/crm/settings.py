@@ -2,12 +2,13 @@
 from pathlib import Path
 from dotenv import load_dotenv
 import os
-
 load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+CSRF_COOKIE_SECURE = os.getenv("CSRF_COOKIE_SECURE", "False") == "True"
+SESSION_COOKIE_SECURE = os.getenv("SESSION_COOKIE_SECURE", "False") == "True"
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -18,6 +19,9 @@ DEBUG = os.getenv("DEBUG", "0") == "1"
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
 
+CSRF_TRUSTED_ORIGINS = [
+    f"https://{host}" for host in ALLOWED_HOSTS if not host.startswith("localhost")
+]
 
 # Application definition
 
