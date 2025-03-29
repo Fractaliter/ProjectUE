@@ -1,7 +1,7 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
-from .models import Contact,Event,Project
+from .models import Contact,Task,Project
 
 from django import forms
 
@@ -59,9 +59,9 @@ class UpdateContactForm(forms.ModelForm):
         exclude = ['user']
         fields = ['first_name', 'last_name', 'email', 'phone', 'address', 'city', 'province', 'country']
 
-class EventForm(forms.ModelForm):
+class TaskForm(forms.ModelForm):
     class Meta:
-        model = Event
+        model = Task
         fields = ['title', 'description', 'date', 'time', 'project', 'duration'] 
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),

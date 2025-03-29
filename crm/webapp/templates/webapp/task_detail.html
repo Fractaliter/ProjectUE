@@ -1,0 +1,8 @@
+{% extends 'webapp/base.html' %}
+{% block content %}
+    <h2>{{ task.title }}</h2>
+    <p>{{ task.description }}</p>
+    <p>Date: {{ task.date }}</p>
+    <p>User: {{ task.organizer}}</p>
+    <p>Duration(h): {{ task.duration}}</p>
+{% endblock %}

@@ -34,7 +34,7 @@ class Project(models.Model):
     def __str__(self):
         return self.name
     
-class Event(models.Model):
+class Task(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
     date = models.DateField()
@@ -47,9 +47,9 @@ class Event(models.Model):
     
 class Attendee(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    task = models.ForeignKey(Task, on_delete=models.CASCADE)
     def __str__(self):
-        return f"{self.user.username} - {self.event.title}"
+        return f"{self.user.username} - {self.task.title}"
 
 
 

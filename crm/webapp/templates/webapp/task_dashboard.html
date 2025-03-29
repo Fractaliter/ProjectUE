@@ -7,7 +7,7 @@
     <hr>
 
 
-    <a class="btn btn-outline-primary btn-sm" href="{% url 'create_event' %}">
+    <a class="btn btn-outline-primary btn-sm" href="{% url 'create_task' %}">
 
         Create a new task &nbsp; <i class="fa fa-plus-circle" aria-hidden="true"></i>
 
@@ -39,25 +39,25 @@
 
         <tbody>
 
-        {% if events %}
+        {% if tasks %}
 
-            {% for event in events %}
+            {% for task in tasks %}
 
             <tr>
 
-                <td> {{event.id}} </td>
+                <td> {{task.id}} </td>
 
-                <td> {{event.title}} </td>
+                <td> {{task.title}} </td>
 
-                <td> {{event.description}} </td>
+                <td> {{task.description}} </td>
 
-                <td> {{event.date}} </td>
-                <td> {{event.time}} </td>
-                <td> {{event.project}} </td>
-                <td> {{event.duration}} </td>
-                <td> {{ event.organizer }} </td>
+                <td> {{task.date}} </td>
+                <td> {{task.time}} </td>
+                <td> {{task.project}} </td>
+                <td> {{task.duration}} </td>
+                <td> {{ task.organizer }} </td>
 
-                <td> <a class="btn btn-success btn-sm" href="{% url 'event_detail' event.id %}"> <i class="fa fa-eye" aria-hidden="true"></i> </a> </td>
+                <td> <a class="btn btn-success btn-sm" href="{% url 'task_detail' task.id %}"> <i class="fa fa-eye" aria-hidden="true"></i> </a> </td>
 
             </tr>
 

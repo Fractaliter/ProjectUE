@@ -13,9 +13,9 @@
     <!-- Statistics -->
 <h3>Task Statistics by Project</h3>
 <ul>
-    {% for stat in event_stats_by_project %}
+    {% for stat in task_stats_by_project %}
     <li>
-        {{ stat.project__name }}: {{ stat.total_events }} tasks, Total Duration: {{ stat.total_duration }} hours
+        {{ stat.project__name }}: {{ stat.total_tasks }} tasks, Total Duration: {{ stat.total_duration }} hours
     </li>
     {% endfor %}
 </ul>
@@ -70,25 +70,25 @@
 
     <tbody>
 
-    {% if events %}
+    {% if tasks %}
 
-        {% for event in events %}
+        {% for task in tasks %}
 
         <tr>
 
-            <td> {{event.id}} </td>
+            <td> {{task.id}} </td>
 
-            <td> {{event.title}} </td>
+            <td> {{task.title}} </td>
 
-            <td> {{event.description}} </td>
+            <td> {{task.description}} </td>
 
-            <td> {{event.date}} </td>
-            <td> {{event.time}} </td>
-            <td> {{event.project}} </td>
-            <td> {{event.duration}} </td>
-            <td> {{ event.organizer }} </td>
+            <td> {{task.date}} </td>
+            <td> {{task.time}} </td>
+            <td> {{task.project}} </td>
+            <td> {{task.duration}} </td>
+            <td> {{ task.organizer }} </td>
 
-            <td> <a class="btn btn-success btn-sm" href="{% url 'event_detail' event.id %}"> <i class="fa fa-eye" aria-hidden="true"></i> </a> </td>
+            <td> <a class="btn btn-success btn-sm" href="{% url 'task_detail' task.id %}"> <i class="fa fa-eye" aria-hidden="true"></i> </a> </td>
 
         </tr>
 
@@ -97,11 +97,11 @@
     {% endif %}
     
 </table>
-<!-- Display total duration of all filtered events -->
+<!-- Display total duration of all filtered tasks -->
 <h4>Total Duration of Filtered Tasks</h4>
 <p>{{ total_duration }} hours</p>
 
-<form method="get" action="{% url 'export_events_csv' %}">
+<form method="get" action="{% url 'export_tasks_csv' %}">
     <input type="hidden" name="project" value="{{ selected_project }}">
     <input type="hidden" name="organizer" value="{{ selected_organizer }}">
     <input type="hidden" name="start_date" value="{{ start_date }}">

@@ -1,13 +1,13 @@
 import csv
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import CreateUserForm, LoginForm, CreateContactForm,ContactForm, UpdateContactForm,EventForm,ProjectForm
+from .forms import CreateUserForm, LoginForm, CreateContactForm,ContactForm, UpdateContactForm,TaskForm,ProjectForm
 from django.db.models import Count, Sum
 from django.contrib.auth.models import auth
 from django.contrib.auth import authenticate
 
 from django.contrib.auth.decorators import login_required
 
-from .models import Contact,Event,Attendee,Project,User
+from .models import Contact,Task,Attendee,Project,User
 
 from django.contrib import messages
 
@@ -84,18 +84,18 @@ def contact_dashboard(request):
 
     return render(request, 'webapp/contact_dashboard.html', context=context)
 
-# - Event Dashboard
+# - Task Dashboard
 
 @login_required(login_url='my-login')
-def event_dashboard(request):
+def task_dashboard(request):
 
-    my_events = Event.objects.all().filter(organizer_id=request.user.id)
+    my_tasks = Task.objects.all().filter(organizer_id=request.user.id)
 
     my_projects = Project.objects.all()
 
-    context = {'events': my_events,'projects':my_projects}
+    context = {'tasks': my_tasks,'projects':my_projects}
 
-    return render(request, 'webapp/event_dashboard.html', context=context)
+    return render(request, 'webapp/task_dashboard.html', context=context)
 
 
 
@@ -183,27 +183,27 @@ def user_logout(request):
 
     return redirect("my-login")
 
-def event_list(request):
-    events = Event.objects.all()
-    return render(request, 'webapp/event_list.html', {'events': events})
+def task_list(request):
+    tasks = Task.objects.all()
+    return render(request, 'webapp/task_list.html', {'tasks': tasks})
 
-def event_detail(request, event_id):
-    event = get_object_or_404(Event, pk=event_id)
-    attendees = Attendee.objects.filter(event=event)
-    return render(request, 'webapp/event_detail.html', {'event': event, 'attendees': attendees})
+def task_detail(request, task_id):
+    task = get_object_or_404(Task, pk=task_id)
+    attendees = Attendee.objects.filter(task=task)
+    return render(request, 'webapp/task_detail.html', {'task': task, 'attendees': attendees})
 
 @login_required
-def create_event(request):
+def create_task(request):
     if request.method == 'POST':
-        form = EventForm(request.POST)
+        form = TaskForm(request.POST)
         if form.is_valid():
-            event = form.save(commit=False)
-            event.organizer = request.user
-            event.save()
-            return redirect('event_detail', event_id=event.id)
+            task = form.save(commit=False)
+            task.organizer = request.user
+            task.save()
+            return redirect('task_detail', task_id=task.id)
     else:
-        form = EventForm()
-    return render(request, 'webapp/event_form.html', {'form': form})
+        form = TaskForm()
+    return render(request, 'webapp/task_form.html', {'form': form})
 
 @login_required
 def create_project(request):
@@ -212,17 +212,17 @@ def create_project(request):
         if form.is_valid():
             project = form.save(commit=False)
             project.save()
-            return redirect('event_dashboard')
+            return redirect('task_dashboard')
     else:
         form = ProjectForm()
     return render(request, 'webapp/project_form.html', {'form': form})
 
 
 @login_required
-def register_event(request, event_id):
-    event = get_object_or_404(Event, pk=event_id)
-    Attendee.objects.get_or_create(user=request.user, event=event)
-    return redirect('event_detail', event_id=event.id)
+def register_task(request, task_id):
+    task = get_object_or_404(Task, pk=task_id)
+    Attendee.objects.get_or_create(user=request.user, task=task)
+    return redirect('task_detail', task_id=task.id)
 
 def artist_search(request):
     artist = None  # Default to None if no search has been made or if no artist is found
@@ -246,81 +246,81 @@ def statistics_dashboard(request):
 
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
-    # Start with all events
-    events = Event.objects.all()
+    # Start with all tasks
+    tasks = Task.objects.all()
     
 
-    # Filter events by selected project if applicable
+    # Filter tasks by selected project if applicable
     if selected_project:
-        events = events.filter(project_id=selected_project)
+        tasks = tasks.filter(project_id=selected_project)
 
-    # Filter events by selected organizer if applicable
+    # Filter tasks by selected organizer if applicable
     if selected_organizer:
-        events = events.filter(organizer_id=selected_organizer)
+        tasks = tasks.filter(organizer_id=selected_organizer)
 
     # Additional statistics (modify as needed)
-    event_count_by_project = Event.objects.values('project__name').annotate(total=Count('id')).order_by('-total')
-    event_count_by_organizer = Event.objects.values('organizer__username').annotate(total=Count('id')).order_by('-total')
+    task_count_by_project = Task.objects.values('project__name').annotate(total=Count('id')).order_by('-total')
+    task_count_by_organizer = Task.objects.values('organizer__username').annotate(total=Count('id')).order_by('-total')
 
-  # Get the count and total duration of events by project
-    event_stats_by_project = Event.objects.values('project__name') \
-                                          .annotate(total_events=Count('id'),
+  # Get the count and total duration of tasks by project
+    task_stats_by_project = Task.objects.values('project__name') \
+                                          .annotate(total_tasks=Count('id'),
                                                     total_duration=Sum('duration')) \
-                                          .order_by('-total_events')
+                                          .order_by('-total_tasks')
     
     # Filtering by date range
     if start_date:
-        events = events.filter(date__gte=start_date)
+        tasks = tasks.filter(date__gte=start_date)
     if end_date:
-        events = events.filter(date__lte=end_date)
+        tasks = tasks.filter(date__lte=end_date)
         
-    total_duration = events.aggregate(Sum('duration'))['duration__sum'] or 0
+    total_duration = tasks.aggregate(Sum('duration'))['duration__sum'] or 0
     context = {
         'projects': projects,
         'organizers': organizers,
-        'events': events,
-        'event_count_by_project': event_count_by_project,
-        'event_count_by_organizer': event_count_by_organizer,
-        'event_stats_by_project': event_stats_by_project,
+        'tasks': tasks,
+        'task_count_by_project': task_count_by_project,
+        'task_count_by_organizer': task_count_by_organizer,
+        'task_stats_by_project': task_stats_by_project,
         'selected_project': selected_project,
         'selected_organizer': selected_organizer,
         'start_date': start_date,
         'end_date': end_date,
-        'total_duration': total_duration  # Total duration of filtered events
+        'total_duration': total_duration  # Total duration of filtered tasks
     }
 
     return render(request, 'webapp/statistics_dashboard.html', context)
 
-def export_events_csv(request):
+def export_tasks_csv(request):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="filtered_tasks.csv"'
 
     writer = csv.writer(response)
     writer.writerow(['Title', 'Description', 'Date', 'Time', 'Project', 'Duration', 'Organizer'])
 
-    events = Event.objects.all()
+    tasks = Task.objects.all()
 
     if request.GET.get('project'):
-        events = events.filter(project_id=request.GET['project'])
+        tasks = tasks.filter(project_id=request.GET['project'])
 
     if request.GET.get('organizer'):
-        events = events.filter(organizer_id=request.GET['organizer'])
+        tasks = tasks.filter(organizer_id=request.GET['organizer'])
 
     if request.GET.get('start_date'):
-        events = events.filter(date__gte=request.GET['start_date'])
+        tasks = tasks.filter(date__gte=request.GET['start_date'])
 
     if request.GET.get('end_date'):
-        events = events.filter(date__lte=request.GET['end_date'])
+        tasks = tasks.filter(date__lte=request.GET['end_date'])
 
-    for event in events:
+    for task in tasks:
         writer.writerow([
-            event.title,
-            event.description,
-            event.date,
-            event.time,
-            event.project.name,
-            event.duration,
-            event.organizer.username
+            task.title,
+            task.description,
+            task.date,
+            task.time,
+            task.project.name,
+            task.duration,
+            task.organizer.username
         ])
 
     return response
