@@ -18,6 +18,8 @@ COPY . /webapp/
 
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
+RUN chmod +x /webapp/entrypoint.sh
+
 EXPOSE 8000
 COPY entrypoint.sh /webapp/entrypoint.sh
 ENTRYPOINT ["/webapp/entrypoint.sh"]
