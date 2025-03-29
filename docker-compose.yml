@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+
+  db:
+    image: postgres:16
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  web:
+    build:
+      context: ./crm
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/crm
+    env_file:
+      - .env
+    depends_on:
+      - db
+
+volumes:
+  pgdata:
