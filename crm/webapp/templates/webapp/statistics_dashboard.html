@@ -2,15 +2,13 @@
 
 {% block content %}
 
-    <h5> Welcome, {{user}}! 👋 </h5>
+<h5>Welcome, {{ user }}! 👋</h5>
+<hr>
 
-    <hr>
+<h5>Here will appear your statistics!</h5>
+<hr> 
 
-    <h5> Here will appear your statistics! </h5>
-
-    <hr> 
-
-    <!-- Statistics -->
+<!-- Statistics -->
 <h3>Task Statistics by Project</h3>
 <ul>
     {% for stat in task_stats_by_project %}
@@ -19,6 +17,7 @@
     </li>
     {% endfor %}
 </ul>
+
 <!-- Filters -->
 <form method="get">
     <label for="project">Filter by Project:</label>
@@ -36,7 +35,7 @@
         <option value="{{ organizer.id }}" {% if selected_organizer == organizer.id|stringformat:"s" %}selected{% endif %}>{{ organizer.username }}</option>
         {% endfor %}
     </select>
-    <!-- Date Range Filters -->
+
     <br>
     <label for="start_date">Start Date:</label>
     <input type="date" id="start_date" name="start_date" value="{{ request.GET.start_date }}">
@@ -46,61 +45,53 @@
 
     <button type="submit">Filter</button>
 </form>
-<br>Filtered Tasks:
+
+<br>
+<h3>Filtered Tasks</h3>
 <table class="table table-hover table-bordered">
-
     <thead class="table-light">
-
         <tr>
-
-            <th scope="col"> ID </th>
-            <th scope="col"> Title </th>
-            <th scope="col"> Description </th>
-            <th scope="col"> Date </th>
-            <th scope="col"> Start Time </th>
-            <th scope="col"> Project </th>
-            <th scope="col"> Duration(h) </th>
-            <th scope="col"> User </th>
-
-            <th scope="col"> View </th>
-
+            <th>ID</th>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Date</th>
+            <th>Start Time</th>
+            <th>Project</th>
+            <th>Duration (h)</th>
+            <th>Assigned To</th>
+            <th>View</th>
         </tr>
-
     </thead>
-
     <tbody>
-
-    {% if tasks %}
-
-        {% for task in tasks %}
-
-        <tr>
-
-            <td> {{task.id}} </td>
-
-            <td> {{task.title}} </td>
-
-            <td> {{task.description}} </td>
-
-            <td> {{task.date}} </td>
-            <td> {{task.time}} </td>
-            <td> {{task.project}} </td>
-            <td> {{task.duration}} </td>
-            <td> {{ task.organizer }} </td>
-
-            <td> <a class="btn btn-success btn-sm" href="{% url 'task_detail' task.id %}"> <i class="fa fa-eye" aria-hidden="true"></i> </a> </td>
-
-        </tr>
-
-        {% endfor %}
-    
-    {% endif %}
-    
+        {% if tasks %}
+            {% for task in tasks %}
+            <tr>
+                <td>{{ task.id }}</td>
+                <td>{{ task.title }}</td>
+                <td>{{ task.description }}</td>
+                <td>{{ task.date }}</td>
+                <td>{{ task.time }}</td>
+                <td>{{ task.project }}</td>
+                <td>{{ task.duration }}</td>
+                <td>{{ task.assigned_to }}</td>
+                <td>
+                    <a class="btn btn-success btn-sm" href="{% url 'task_detail' task.id %}">
+                        <i class="fa fa-eye" aria-hidden="true"></i>
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        {% else %}
+            <tr><td colspan="9">No tasks found.</td></tr>
+        {% endif %}
+    </tbody>
 </table>
-<!-- Display total duration of all filtered tasks -->
+
+<!-- Display total duration -->
 <h4>Total Duration of Filtered Tasks</h4>
 <p>{{ total_duration }} hours</p>
 
+<!-- Export to CSV -->
 <form method="get" action="{% url 'export_tasks_csv' %}">
     <input type="hidden" name="project" value="{{ selected_project }}">
     <input type="hidden" name="organizer" value="{{ selected_organizer }}">
@@ -108,5 +99,5 @@
     <input type="hidden" name="end_date" value="{{ end_date }}">
     <button type="submit">Export to CSV</button>
 </form>
-</tbody>
+
 {% endblock %}

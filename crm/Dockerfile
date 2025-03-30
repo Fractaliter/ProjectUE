@@ -11,14 +11,16 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     libpq-dev \
     netcat-openbsd \
+    bash \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
+
+# Najpierw skrypt entrypoint, potem reszta
+COPY entrypoint.sh /webapp/entrypoint.sh
 
 COPY . /webapp/
 
 RUN pip install --upgrade pip && pip install -r requirements.txt
-
-RUN chmod +x /webapp/entrypoint.sh
 
 EXPOSE 8000
 COPY entrypoint.sh /webapp/entrypoint.sh
