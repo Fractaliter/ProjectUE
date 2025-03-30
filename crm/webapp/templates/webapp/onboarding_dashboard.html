@@ -1,0 +1,81 @@
+{% extends 'webapp/base.html' %}
+{% load crispy_forms_tags %}
+{% load onboarding_extras %}
+
+{% block content %}
+<div class="container bg-light shadow-md p-5 mt-4">
+  <h3>📋 Onboarding Dashboard</h3>
+  <p><strong>Project:</strong> {{ membership.project.name }}</p>
+  <p><strong>Your Role:</strong> {{ membership.role.name }}</p>
+
+  <hr>
+
+  {% for step in onboarding_steps %}
+    <div class="mb-4">
+      <h5>{{ step.order }}. {{ step.title }} {% if step.is_required %}<span class="badge bg-danger">Required</span>{% endif %}</h5>
+      {% if step.description %}
+        <p class="text-muted">{{ step.description }}</p>
+      {% endif %}
+
+      <table class="table table-bordered table-sm">
+        <thead class="table-light">
+          <tr>
+            <th>Task</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Completed At</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for template in step.task_templates.all %}
+          {% with user_task=user_tasks|get_item:template.id %}
+            <tr>
+              <td>{{ template.title }}</td>
+              <td>{{ template.description }}</td>
+              <td>
+                {% if user_task and user_task.completed %}
+                  <span class="badge bg-success">Done</span>
+                {% else %}
+                  <span class="badge bg-warning text-dark">To Do</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if user_task and user_task.completed_at %}
+                  {{ user_task.completed_at|date:"Y-m-d H:i" }}
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+              <td>
+                {% if not user_task or not user_task.completed %}
+                  <form method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="complete_task_id" value="{{ template.id }}">
+                    <button type="submit" class="btn btn-sm btn-outline-success">Mark as done</button>
+                  </form>
+                {% else %}
+                  <span class="text-muted">✓</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endwith %}
+        {% empty %}
+          <tr><td colspan="5"><em>No tasks in this step.</em></td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+
+      <h6>Add Custom Task to This Step</h6>
+      <form method="post" class="mb-4">
+        {% csrf_token %}
+        <input type="hidden" name="custom_step_id" value="{{ step.id }}">
+        {{ custom_task_form|crispy }}
+        <button type="submit" class="btn btn-outline-primary btn-sm">Add Task</button>
+      </form>
+    </div>
+    <hr>
+  {% endfor %}
+
+</div>
+{% endblock %}

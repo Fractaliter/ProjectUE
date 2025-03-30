@@ -141,3 +141,12 @@ class OnboardingTask(BaseTask):
 
     def __str__(self):
         return f"{self.title} by {self.membership.user.username}"
+
+class OnboardingProgress(models.Model):
+    membership = models.ForeignKey('ProjectMembership', on_delete=models.CASCADE, related_name='onboarding_progress')
+    task = models.ForeignKey(OnboardingTask, on_delete=models.CASCADE)
+    completed = models.BooleanField(default=False)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ('membership', 'task')

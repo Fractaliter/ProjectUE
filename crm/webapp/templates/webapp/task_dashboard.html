@@ -62,12 +62,13 @@
 
     <hr>
     <br>
-    Projects:
+    My Projects:
     <table class="table table-hover table-bordered">
         <thead class="table-light">
             <tr>
-                <th scope="col">Name</th>
-                <th scope="col">Description</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Onboarding</th>
             </tr>
         </thead>
         <tbody>
@@ -76,11 +77,21 @@
                     <tr>
                         <td>{{ project.name }}</td>
                         <td>{{ project.description }}</td>
+                        <td>
+                            {% for m in memberships %}
+                                {% if m.project.id == project.id %}
+                                    <a href="{% url 'onboarding_dashboard' m.id %}" class="btn btn-outline-secondary btn-sm">
+                                        <i class="fa fa-sign-in"></i> View
+                                    </a>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
                     </tr>
                 {% endfor %}
             {% else %}
-                <tr><td colspan="2">No projects found.</td></tr>
+                <tr><td colspan="3">No projects found.</td></tr>
             {% endif %}
         </tbody>
     </table>
+
 {% endblock %}

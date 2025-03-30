@@ -1,0 +1,27 @@
+{% extends 'webapp/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container bg-light shadow-md p-5 mt-4">
+  <h3>🔄 Update Progress for Task</h3>
+
+  <p><strong>Project:</strong> {{ progress.membership.project.name }}</p>
+  <p><strong>Task:</strong> {{ progress.task.title }}</p>
+  <p><strong>Description:</strong> {{ progress.task.description }}</p>
+
+  <hr>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form|crispy }}
+
+    <button type="submit" class="btn btn-success">
+      ✅ Save Progress
+    </button>
+
+    <a href="{% url 'onboarding_dashboard' membership_id=progress.membership.id %}" class="btn btn-secondary">
+      ← Back to Dashboard
+    </a>
+  </form>
+</div>
+{% endblock %}

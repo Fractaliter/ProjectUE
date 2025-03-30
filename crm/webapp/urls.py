@@ -35,7 +35,11 @@ urlpatterns = [
     
     path('artist-search/', views.artist_search, name='artist_search_url'),
     path('export-csv/', views.export_tasks_csv, name='export_tasks_csv'),
-    path('manage-projects', views.manage_projects, name='manage_projects'),
+    path('manage-projects', views.manage_projects, name='manage_projects'), 
+    path('onboarding/<int:membership_id>/', views.onboarding_dashboard, name='onboarding_dashboard'),
+    path('onboarding/progress/<int:progress_id>/update/', views.update_onboarding_progress, name='update_onboarding_progress'),
+    path('projects/<int:project_id>/onboarding-setup/', views.onboarding_setup, name='onboarding_setup'),
+
 
     
 

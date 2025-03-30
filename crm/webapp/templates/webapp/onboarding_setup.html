@@ -1,0 +1,74 @@
+{% extends 'webapp/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container bg-light shadow-md p-5 mt-4">
+  <h3>🛠 Onboarding Setup for "{{ project.name }}"</h3>
+  <hr>
+
+  {% for role in roles %}
+    <div class="mb-4">
+      <h5>🎯 Role: {{ role.name }}</h5>
+      <p>{{ role.description }}</p>
+
+      <strong>👥 Members:</strong>
+      <ul>
+        {% for member in role.project.memberships.all %}
+          {% if member.role == role %}
+            <li>{{ member.user.username }}</li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+
+      <strong>📋 Steps & Tasks:</strong>
+      {% for step in role.steps.all %}
+        <div class="border rounded p-3 mb-3 bg-white">
+          <strong>{{ step.order }}. {{ step.title }}</strong> {% if step.is_required %}<span class="badge bg-danger">Required</span>{% endif %}
+          {% if step.description %}
+            <div><small class="text-muted">{{ step.description }}</small></div>
+          {% endif %}
+
+          <ul class="list-group mt-2">
+            {% for task in step.task_templates.all %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ task.title }} {% if not task.is_required %}<span class="badge bg-secondary">Optional</span>{% endif %}
+                <form method="post" style="margin: 0;">
+                  {% csrf_token %}
+                  <input type="hidden" name="task_id" value="{{ task.id }}">
+                  <input type="hidden" name="delete_task" value="1">
+                  <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                </form>
+              </li>
+            {% empty %}
+              <li class="list-group-item"><em>No tasks in this step.</em></li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endfor %}
+    </div>
+    <hr>
+  {% endfor %}
+
+  <div class="row">
+    <div class="col-md-6">
+      <h5>➕ Add Onboarding Step</h5>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="add_step" value="1">
+        {{ step_form|crispy }}
+        <button type="submit" class="btn btn-success">Add Step</button>
+      </form>
+    </div>
+
+    <div class="col-md-6">
+      <h5>➕ Add Task Template</h5>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="add_task" value="1">
+        {{ task_form|crispy }}
+        <button type="submit" class="btn btn-primary">Add Task</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

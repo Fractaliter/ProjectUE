@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django import forms
 from django.forms.widgets import PasswordInput, TextInput
 
-from .models import Contact, ProjectTask, Project,UserProfile,UserRole, ProjectRole, ProjectMembership
+from .models import Contact, ProjectTask, Project,UserProfile,UserRole, ProjectRole, ProjectMembership, OnboardingTask, OnboardingProgress, OnboardingTaskTemplate, OnboardingStep
 
 # - Register/Create a user
 class CreateUserForm(UserCreationForm):
@@ -93,3 +93,35 @@ class CreateProjectForm(forms.ModelForm):
     class Meta:
         model = Project
         fields = ['name', 'description']
+
+class CreateOnboardingTaskForm(forms.ModelForm):
+    class Meta:
+        model = OnboardingTask
+        fields = ['title', 'description']
+        widgets = {
+            'title': forms.TextInput(attrs={'placeholder': 'Enter custom task title'}),
+            'description': forms.Textarea(attrs={'rows': 2, 'placeholder': 'Enter details...'}),
+        }
+
+class UpdateProgressForm(forms.ModelForm):
+    class Meta:
+        model = OnboardingProgress
+        fields = ['completed']
+
+class CreateOnboardingTaskTemplateForm(forms.ModelForm):
+    class Meta:
+        model = OnboardingTaskTemplate
+        fields = ['step', 'title', 'description', 'is_required']
+        widgets = {
+            'title': forms.TextInput(attrs={'placeholder': 'Task title'}),
+            'description': forms.Textarea(attrs={'rows': 2}),
+        }
+
+class CreateOnboardingStepForm(forms.ModelForm):
+    class Meta:
+        model = OnboardingStep
+        fields = ['role', 'title', 'description', 'order']
+        widgets = {
+            'title': forms.TextInput(attrs={'placeholder': 'Step title'}),
+            'description': forms.Textarea(attrs={'rows': 2}),
+        }
