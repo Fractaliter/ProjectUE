@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django import forms
 from django.forms.widgets import PasswordInput, TextInput
 
-from .models import Contact, ProjectTask, Project,UserProfile,UserRole
+from .models import Contact, ProjectTask, Project,UserProfile,UserRole, ProjectRole, ProjectMembership
 
 # - Register/Create a user
 class CreateUserForm(UserCreationForm):
@@ -71,3 +71,25 @@ class CreateRoleForm(forms.ModelForm):
         widgets = {
             'name': forms.TextInput(attrs={'placeholder': 'Role name', 'class': 'form-control'})
         }
+class AssignProjectRoleForm(forms.Form):
+    user = forms.ModelChoiceField(queryset=User.objects.all())
+    role = forms.ModelChoiceField(queryset=ProjectRole.objects.all(), required=False)
+
+class AddMemberForm(forms.ModelForm):
+    project_id = forms.IntegerField(widget=forms.HiddenInput())
+
+    class Meta:
+        model = ProjectMembership
+        fields = ['user', 'role']
+
+class CreateProjectRoleForm(forms.ModelForm):
+    project_id = forms.IntegerField(widget=forms.HiddenInput())
+
+    class Meta:
+        model = ProjectRole
+        fields = ['name', 'description']
+        
+class CreateProjectForm(forms.ModelForm):
+    class Meta:
+        model = Project
+        fields = ['name', 'description']

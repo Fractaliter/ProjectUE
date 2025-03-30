@@ -1,0 +1,131 @@
+{% extends 'webapp/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+
+  <h3 class="mb-4">📁 Project Management</h3>
+
+  <!-- Create New Project -->
+  <div class="card mb-5 shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <strong>Create a New Project</strong>
+    </div>
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+        {{ create_project_form|crispy }}
+        <input type="hidden" name="action" value="create_project">
+        <button type="submit" class="btn btn-success">
+            <i class="fa fa-plus-circle"></i> Create Project
+          </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Existing Projects -->
+  {% for project in projects %}
+    <div class="card mb-4 shadow-sm">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <strong>{{ project.name }}</strong>
+        <form method="post" class="m-0">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="delete_project">
+          <input type="hidden" name="project_id" value="{{ project.id }}">
+          <button type="submit" 
+          onclick="return confirm('Are you sure you want to delete this?')"
+          class="btn btn-danger btn-sm">
+            <i class="fa fa-trash"></i> Delete
+          </button>
+        </form>
+      </div>
+      <div class="card-body">
+
+        <p>{{ project.description }}</p>
+
+        <div class="mb-3">
+            <strong>👥 Members:</strong>
+            <ul class="list-group">
+              {% for member in project.memberships.all %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  {{ member.user.username }} —
+                  <span>
+                    {% if member.role %}
+                      {{ member.role.name }}
+                    {% else %}
+                      <em>No Role</em>
+                    {% endif %}
+                  </span>
+                  <form method="post" class="m-0">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete_member">
+                    <input type="hidden" name="project_id" value="{{ project.id }}">
+                    <input type="hidden" name="membership_id" value="{{ member.id }}">
+                    <button type="submit" 
+                    onclick="return confirm('Are you sure you want to delete this?')"
+                    class="btn btn-sm btn-danger">
+                      <i class="fa fa-trash"></i>
+                    </button>
+                  </form>
+                </li>
+              {% empty %}
+                <li class="list-group-item"><em>No members assigned.</em></li>
+              {% endfor %}
+            </ul>            
+        </div>
+
+        <div class="mb-3">
+            <strong>🧩 Roles:</strong>
+            <ul class="list-group">
+              {% for role in project.roles.all %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  {{ role.name }} – {{ role.description|default:"(no description)" }}
+                  <form method="post" class="m-0">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete_role">
+                    <input type="hidden" name="project_id" value="{{ project.id }}">
+                    <input type="hidden" name="role_id" value="{{ role.id }}">
+                    <button type="submit" class="btn btn-sm btn-danger">
+                      <i class="fa fa-trash"></i>
+                    </button>
+                  </form>
+                </li>
+              {% empty %}
+                <li class="list-group-item"><em>No roles defined yet.</em></li>
+              {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Add Member Form -->
+        <h6>Add Member:</h6>
+        <form method="post" class="mb-3">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="add_member">
+          <input type="hidden" name="project_id" value="{{ project.id }}">
+          {{ add_member_form.user|as_crispy_field }}
+          {{ add_member_form.role|as_crispy_field }}
+          <button type="submit" class="btn btn-outline-success btn-sm">
+            <i class="fa fa-user-plus"></i> Add
+          </button>
+        </form>
+
+        <!-- Add Role Form -->
+        <h6>Create New Role:</h6>
+        <form method="post" class="mb-3">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="create_role">
+          <input type="hidden" name="project_id" value="{{ project.id }}">
+          {{ add_role_form.name|as_crispy_field }}
+          {{ add_role_form.description|as_crispy_field }}
+          <button type="submit" class="btn btn-outline-primary btn-sm">
+            <i class="fa fa-plus"></i> Add Role
+          </button>
+        </form>
+
+      </div>
+    </div>
+  {% endfor %}
+
+</div>
+{% endblock %}

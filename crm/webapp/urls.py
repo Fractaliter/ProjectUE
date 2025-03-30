@@ -35,6 +35,7 @@ urlpatterns = [
     
     path('artist-search/', views.artist_search, name='artist_search_url'),
     path('export-csv/', views.export_tasks_csv, name='export_tasks_csv'),
+    path('manage-projects', views.manage_projects, name='manage_projects'),
 
     
 
