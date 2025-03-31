@@ -297,6 +297,7 @@ def manage_projects(request):
                 membership = add_member_form.save(commit=False)
                 membership.project = project
                 membership.save()
+                messages.success(request, f"{membership.user.username} added to project '{membership.project.name}' and onboarding tasks assigned.")
                 return redirect('manage_projects')
             
         elif action == 'create_role':
@@ -363,15 +364,6 @@ def onboarding_progress(request, membership_id):
         "structured_steps": structured,
     }
     return render(request, "webapp/onboarding_progress.html", context)
-
-@login_required
-def mark_task_complete(request, task_id):
-    task = get_object_or_404(OnboardingTask, id=task_id, membership__user=request.user)
-    task.status = "done"
-    task.completed_at = timezone.now()
-    task.save()
-    messages.success(request, f"Marked task '{task.template.title}' as complete.")
-    return redirect("onboarding_progress", membership_id=task.membership.id)
 
 @login_required
 def add_custom_task(request, membership_id, step_id):
@@ -493,3 +485,33 @@ def onboarding_setup(request, project_id):
         'step_form': step_form,
     }
     return render(request, 'webapp/onboarding_setup.html', context)
+
+@login_required
+def mark_task_complete(request, task_id):
+    task = get_object_or_404(OnboardingTask, id=task_id, membership__user=request.user)
+    task.status = OnboardingTask.TaskStatus.COMPLETED
+    task.completed_at = timezone.now()
+    task.completed = True
+    task.save()
+    messages.success(request, f"Marked task '{task.title}' as completed.")
+    return redirect("onboarding_dashboard", membership_id=task.membership.id)
+
+@login_required
+def mark_task_in_progress(request, task_id):
+    task = get_object_or_404(OnboardingTask, id=task_id, membership__user=request.user)
+    task.status = OnboardingTask.TaskStatus.IN_PROGRESS
+    task.completed = False
+    task.completed_at = None
+    task.save()
+    messages.info(request, f"Task '{task.title}' marked as in progress.")
+    return redirect("onboarding_dashboard", membership_id=task.membership.id)
+
+@login_required
+def reset_task_to_do(request, task_id):
+    task = get_object_or_404(OnboardingTask, id=task_id, membership__user=request.user)
+    task.status = OnboardingTask.TaskStatus.TODO
+    task.completed = False
+    task.completed_at = None
+    task.save()
+    messages.warning(request, f"Task '{task.title}' reset to To Do.")
+    return redirect("onboarding_dashboard", membership_id=task.membership.id)

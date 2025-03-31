@@ -40,7 +40,9 @@ urlpatterns = [
     path('onboarding/progress/<int:progress_id>/update/', views.update_onboarding_progress, name='update_onboarding_progress'),
     path('projects/<int:project_id>/onboarding-setup/', views.onboarding_setup, name='onboarding_setup'),
 
-
+    path('tasks/<int:task_id>/complete/', views.mark_task_complete, name='mark_task_complete'),
+    path('tasks/<int:task_id>/in-progress/', views.mark_task_in_progress, name='mark_task_in_progress'),
+    path('tasks/<int:task_id>/reset/', views.reset_task_to_do, name='reset_task_to_do'),
     
 
 ]

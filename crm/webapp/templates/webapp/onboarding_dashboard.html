@@ -17,8 +17,8 @@
         <p class="text-muted">{{ step.description }}</p>
       {% endif %}
 
-      <table class="table table-bordered table-sm">
-        <thead class="table-light">
+      <table class="table table-bordered table-hover table-sm">
+        <thead class="table-light text-center">
           <tr>
             <th>Task</th>
             <th>Description</th>
@@ -28,43 +28,49 @@
           </tr>
         </thead>
         <tbody>
-        {% for template in step.task_templates.all %}
-          {% with user_task=user_tasks|get_item:template.id %}
-            <tr>
-              <td>{{ template.title }}</td>
-              <td>{{ template.description }}</td>
-              <td>
-                {% if user_task and user_task.completed %}
-                  <span class="badge bg-success">Done</span>
-                {% else %}
-                  <span class="badge bg-warning text-dark">To Do</span>
-                {% endif %}
-              </td>
-              <td>
-                {% if user_task and user_task.completed_at %}
-                  {{ user_task.completed_at|date:"Y-m-d H:i" }}
-                {% else %}
-                  —
-                {% endif %}
-              </td>
-              <td>
-                {% if not user_task or not user_task.completed %}
-                  <form method="post" style="display:inline;">
-                    {% csrf_token %}
-                    <input type="hidden" name="complete_task_id" value="{{ template.id }}">
-                    <button type="submit" class="btn btn-sm btn-outline-success">Mark as done</button>
-                  </form>
-                {% else %}
-                  <span class="text-muted">✓</span>
-                {% endif %}
-              </td>
-            </tr>
-          {% endwith %}
-        {% empty %}
-          <tr><td colspan="5"><em>No tasks in this step.</em></td></tr>
-        {% endfor %}
+          {% for template in step.task_templates.all %}
+            {% with user_task=user_tasks|get_item:template.id %}
+              <tr>
+                <td>{{ template.title }}</td>
+                <td>{{ template.description }}</td>
+                <td class="text-center">
+                  {% if user_task %}
+                    {% if user_task.status == 'completed' %}
+                      <span class="badge bg-success">Done</span>
+                    {% elif user_task.status == 'in_progress' %}
+                      <span class="badge bg-info text-dark">In Progress</span>
+                    {% else %}
+                      <span class="badge bg-warning text-dark">To Do</span>
+                    {% endif %}
+                  {% else %}
+                    <span class="badge bg-secondary">Not started</span>
+                  {% endif %}
+                </td>
+                <td class="text-center">
+                  {% if user_task and user_task.completed_at %}
+                    {{ user_task.completed_at|date:"Y-m-d H:i" }}
+                  {% else %}
+                    —
+                  {% endif %}
+                </td>
+                <td class="text-center">
+                  {% if user_task %}
+                    <div class="btn-group btn-group-sm" role="group">
+                      <a href="{% url 'reset_task_to_do' user_task.id %}" class="btn btn-outline-secondary {% if user_task.status == 'todo' %}disabled{% endif %}">To Do</a>
+                      <a href="{% url 'mark_task_in_progress' user_task.id %}" class="btn btn-outline-info {% if user_task.status == 'in_progress' %}disabled{% endif %}">In Progress</a>
+                      <a href="{% url 'mark_task_complete' user_task.id %}" class="btn btn-outline-success {% if user_task.status == 'completed' %}disabled{% endif %}">Done</a>
+                    </div>
+                  {% else %}
+                    <span class="text-muted">No task yet</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endwith %}
+          {% empty %}
+            <tr><td colspan="5" class="text-center"><em>No tasks in this step.</em></td></tr>
+          {% endfor %}
         </tbody>
-      </table>
+      </table>      
 
       <h6>Add Custom Task to This Step</h6>
       <form method="post" class="mb-4">
