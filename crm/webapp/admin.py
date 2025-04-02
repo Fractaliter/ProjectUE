@@ -2,7 +2,7 @@ from django.contrib import admin
 
 # Register your models here.
 
-from . models import Contact,ProjectTask,Project,UserRole,UserProfile,OnboardingTaskTemplate,OnboardingTask
+from webapp.models import Contact,ProjectTask,Project,UserRole,UserProfile,OnboardingTaskTemplate,OnboardingTask
 
 admin.site.register(Contact)
 admin.site.register(ProjectTask)
