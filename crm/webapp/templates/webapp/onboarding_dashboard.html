@@ -1,0 +1,87 @@
+{% extends 'webapp/base.html' %}
+{% load crispy_forms_tags %}
+{% load onboarding_extras %}
+
+{% block content %}
+<div class="container bg-light shadow-md p-5 mt-4">
+  <h3>📋 Onboarding Dashboard</h3>
+  <p><strong>Project:</strong> {{ membership.project.name }}</p>
+  <p><strong>Your Role:</strong> {{ membership.role.name }}</p>
+
+  <hr>
+
+  {% for step in onboarding_steps %}
+    <div class="mb-4">
+      <h5>{{ step.order }}. {{ step.title }} {% if step.is_required %}<span class="badge bg-danger">Required</span>{% endif %}</h5>
+      {% if step.description %}
+        <p class="text-muted">{{ step.description }}</p>
+      {% endif %}
+
+      <table class="table table-bordered table-hover table-sm">
+        <thead class="table-light text-center">
+          <tr>
+            <th>Task</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Completed At</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for template in step.task_templates.all %}
+            {% with user_task=user_tasks|get_item:template.id %}
+              <tr>
+                <td>{{ template.title }}</td>
+                <td>{{ template.description }}</td>
+                <td class="text-center">
+                  {% if user_task %}
+                    {% if user_task.status == 'completed' %}
+                      <span class="badge bg-success">Done</span>
+                    {% elif user_task.status == 'in_progress' %}
+                      <span class="badge bg-info text-dark">In Progress</span>
+                    {% else %}
+                      <span class="badge bg-warning text-dark">To Do</span>
+                    {% endif %}
+                  {% else %}
+                    <span class="badge bg-secondary">Not started</span>
+                  {% endif %}
+                </td>
+                <td class="text-center">
+                  {% if user_task and user_task.completed_at %}
+                    {{ user_task.completed_at|date:"Y-m-d H:i" }}
+                  {% else %}
+                    —
+                  {% endif %}
+                </td>
+                <td class="text-center">
+                  {% if user_task %}
+                    <div class="btn-group btn-group-sm" role="group">
+                      <a href="{% url 'reset_task_to_do' user_task.id %}" class="btn btn-outline-secondary {% if user_task.status == 'todo' %}disabled{% endif %}">To Do</a>
+                      <a href="{% url 'mark_task_in_progress' user_task.id %}" class="btn btn-outline-info {% if user_task.status == 'in_progress' %}disabled{% endif %}">In Progress</a>
+                      <a href="{% url 'mark_task_complete' user_task.id %}" class="btn btn-outline-success {% if user_task.status == 'completed' %}disabled{% endif %}">Done</a>
+                    </div>
+                  {% else %}
+                    <span class="text-muted">No task yet</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endwith %}
+          {% empty %}
+            <tr><td colspan="5" class="text-center"><em>No tasks in this step.</em></td></tr>
+          {% endfor %}
+        </tbody>
+      </table>      
+
+      <h6>Add Custom Task to This Step</h6>
+      <form method="post" class="mb-4">
+        {% csrf_token %}
+        <input type="hidden" name="custom_step_id" value="{{ step.id }}">
+        {{ custom_task_form|crispy }}
+        <button type="submit" class="btn btn-outline-primary btn-sm">Add Task</button>
+      </form>
+    </div>
+    <hr>
+  {% endfor %}
+
+</div>
+{% endblock %}

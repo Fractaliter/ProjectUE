@@ -9,9 +9,9 @@
 
         <div class="container bg-light shadow-md p-5 form-layout">
 
-            <h3> Create Event </h3>
+            <h3> Create Project </h3>
 
-            <h6> Start adding in the required details for your Event information. </h6>
+            <h6> Start adding in the required details for your task information. </h6>
 
             <hr>
             <br>
@@ -20,35 +20,22 @@
 
                 {% csrf_token %}
 
-                {{form.title|as_crispy_field}}
+                {{form.name|as_crispy_field}}
 
                 <br>
 
                 {{form.description|as_crispy_field}}
 
-                <br>
-
-                {{form.date|as_crispy_field}}
-
-                <br>
-
-                {{form.time|as_crispy_field}}
-
-                <br>
-
-                {{form.location|as_crispy_field}}
-
-                <br>
                 
                 <button type="submit" class="btn btn-primary"> 
                     
-                    Create Event &nbsp; <i class="fa fa-check" aria-hidden="true"></i>
+                    Create Project &nbsp; <i class="fa fa-check" aria-hidden="true"></i>
 
                 </button>
 
                 &nbsp;
 
-                <a href="{% url 'event_dashboard' %}" class="btn btn-secondary"> 
+                <a href="{% url 'task_dashboard' %}" class="btn btn-secondary"> 
 
 
                     Return &nbsp; <i class="fa fa-arrow-left" aria-hidden="true"></i>
