@@ -1,14 +1,18 @@
 <nav class="bg-primary sidebar text-white p-3 vh-100">
-  <h4 class="navbar-brand text-white">ProjectUE</h4>
+  <h4 class="navbar-brand text-white">OnboardEasier</h4>
   <ul class="nav flex-column">
     {% if user.is_authenticated %}
       <li class="nav-item"><a class="nav-link text-white" href="{% url 'contact_dashboard' %}">📇 Contact Info</a></li>
       <li class="nav-item"><a class="nav-link text-white" href="{% url 'task_dashboard' %}">🕒 Time Tracker</a></li>
       <li class="nav-item"><a class="nav-link text-white" href="{% url 'onboarding_projects' %}">🕒 Onboarding</a></li>
 
-      {% if user.is_superuser %}
-        <li class="nav-item"><a class="nav-link text-white" href="{% url 'manage_projects' %}">📁 Project Management</a></li>
-        <li class="nav-item"><a class="nav-link text-white" href="{% url 'statistics_dashboard' %}">📊 Statistics</a></li>
+      {% if user.is_superuser or user_profile and user_profile.role and user_profile.role.can_manage_projects %}
+        <li class="nav-item"><a class="nav-link text-white" href="{% url 'manage_projects' %}">📁 Project Management</a></li>  
+      {% endif %}
+      {% if user.is_superuser or user_profile and user_profile.role and user_profile.role.can_view_statistics %}
+        <li class="nav-item"><a class="nav-link text-white" href="{% url 'statistics_dashboard' %}">📊 Statistics</a></li> 
+      {% endif %}
+      {% if user.is_superuser or user_profile and user_profile.role and user_profile.role.can_manage_users %}
         <li class="nav-item"><a class="nav-link text-white" href="{% url 'manage_users' %}">👤 User Management</a></li>
       {% endif %}
 

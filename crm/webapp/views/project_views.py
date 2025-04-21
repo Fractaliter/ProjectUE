@@ -14,7 +14,17 @@ from django.http import HttpResponse
 
 @login_required
 def manage_projects(request):
-    projects = Project.objects.all()
+    user = request.user
+
+    # Superuser widzi wszystkie projekty
+    if user.is_superuser:
+        projects = Project.objects.all()
+    else:
+        # Inni użytkownicy widzą tylko projekty, które stworzyli lub w których są adminami
+        creator_projects = Project.objects.filter(creator=user)
+        admin_memberships = ProjectMembership.objects.filter(user=user, is_admin=True).values_list('project_id', flat=True)
+        admin_projects = Project.objects.filter(id__in=admin_memberships)
+        projects = (creator_projects | admin_projects).distinct()
 
     if request.method == 'POST':
         action = request.POST.get('action')
@@ -41,7 +51,9 @@ def manage_projects(request):
         elif action == 'create_project':
             create_project_form = CreateProjectForm(request.POST)
             if create_project_form.is_valid():
-                create_project_form.save()
+                project = create_project_form.save(commit=False)
+                project.creator = request.user
+                project.save()
                 return redirect('manage_projects')
             
         elif action == 'delete_project' and project:
@@ -77,7 +89,6 @@ def create_project(request):
         form = ProjectForm(request.POST)
         if form.is_valid():
             project = form.save(commit=False)
-            project.creator = request.user
             project.save()
             return redirect('task_dashboard')
     else:
