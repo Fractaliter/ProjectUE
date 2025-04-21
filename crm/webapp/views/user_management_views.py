@@ -36,6 +36,14 @@ def manage_users(request):
             profile.save()
             messages.success(request, f"Updated role for {user.username}")
             return redirect('manage_users')
+        elif 'edit_role_id' in request.POST:
+            role = get_object_or_404(UserRole, id=request.POST.get("edit_role_id"))
+            role.can_manage_users = 'can_manage_users' in request.POST
+            role.can_manage_projects = 'can_manage_projects' in request.POST
+            role.can_view_statistics = 'can_view_statistics' in request.POST
+            role.save()
+            messages.success(request, f"Permissions updated for role '{role.name}'.")
+            return redirect('manage_users')
 
     user_profiles = [
     {

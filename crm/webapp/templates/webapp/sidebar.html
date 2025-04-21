@@ -4,11 +4,11 @@
     {% if user.is_authenticated %}
       <li class="nav-item"><a class="nav-link text-white" href="{% url 'contact_dashboard' %}">📇 Contact Info</a></li>
       <li class="nav-item"><a class="nav-link text-white" href="{% url 'task_dashboard' %}">🕒 Time Tracker</a></li>
-      <li class="nav-item"><a class="nav-link text-white" href="{% url 'onboarding_projects' %}">🕒 Onboarding</li>
-      <li class="nav-item"><a class="nav-link text-white" href="{% url 'manage_projects' %}">📁 Project Management</a></li>
-      <li class="nav-item"><a class="nav-link text-white" href="{% url 'statistics_dashboard' %}">📊 Statistics</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="{% url 'onboarding_projects' %}">🕒 Onboarding</a></li>
 
       {% if user.is_superuser %}
+        <li class="nav-item"><a class="nav-link text-white" href="{% url 'manage_projects' %}">📁 Project Management</a></li>
+        <li class="nav-item"><a class="nav-link text-white" href="{% url 'statistics_dashboard' %}">📊 Statistics</a></li>
         <li class="nav-item"><a class="nav-link text-white" href="{% url 'manage_users' %}">👤 User Management</a></li>
       {% endif %}
 

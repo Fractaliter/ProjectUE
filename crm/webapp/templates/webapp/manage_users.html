@@ -15,7 +15,26 @@
 <h5>Existing Roles:</h5>
 <ul>
     {% for role in roles %}
-        <li>{{ role.name }}</li>
+        <li>
+            {{ role.name }}
+            <form method="post" class="d-inline ms-3">
+                {% csrf_token %}
+                <input type="hidden" name="edit_role_id" value="{{ role.id }}">
+                <label class="form-check-label me-2">
+                    <input type="checkbox" name="can_manage_users" class="form-check-input" {% if role.can_manage_users %}checked{% endif %}>
+                    Manage Users
+                </label>
+                <label class="form-check-label me-2">
+                    <input type="checkbox" name="can_manage_projects" class="form-check-input" {% if role.can_manage_projects %}checked{% endif %}>
+                    Manage Projects
+                </label>
+                <label class="form-check-label">
+                    <input type="checkbox" name="can_view_statistics" class="form-check-input" {% if role.can_view_statistics %}checked{% endif %}>
+                    View Stats
+                </label>
+                <button type="submit" class="btn btn-outline-primary btn-sm ms-2">Update</button>
+            </form>
+        </li>
     {% empty %}
         <li>No roles created yet.</li>
     {% endfor %}
@@ -53,10 +72,11 @@
                         <option value="">-- Remove Role --</option>
                         {% for role in roles %}
                             <option value="{{ role.id }}"
-                                {% if item.profile.role and item.profile.role.id == role.id %}
-                                    selected
-                                {% endif %}
-                            >
+                            {% if item.profile.role %}
+                                {{ item.profile.role.name }}
+                            {% else %}
+                                None
+                            {% endif %}>
                                 {{ role.name }}
                             </option>
                         {% endfor %}

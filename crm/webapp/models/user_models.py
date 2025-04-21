@@ -5,6 +5,11 @@ from django.conf import settings
 class UserRole(models.Model):
     name = models.CharField(max_length=50, unique=True)
 
+    # Custom permissions for this role
+    can_manage_users = models.BooleanField(default=False)
+    can_manage_projects = models.BooleanField(default=False)
+    can_view_statistics = models.BooleanField(default=False)
+
     def __str__(self):
         return self.name
 
@@ -15,6 +20,11 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.role.name if self.role else 'No Role'}"
+    
+    def has_permission(self, perm_name):
+        if self.role:
+            return getattr(self.role, perm_name, False)
+        return False
 
 class Contact(models.Model):
     user = models.OneToOneField(

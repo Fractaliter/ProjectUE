@@ -7,6 +7,9 @@ class Project(models.Model):
     creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='created_projects')
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def is_user_admin(self, user):
+        return self.memberships.filter(user=user, is_admin=True).exists()
+    
     def __str__(self):
         return self.name
 
@@ -25,6 +28,7 @@ class ProjectMembership(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='memberships')
     role = models.ForeignKey(ProjectRole, on_delete=models.SET_NULL, null=True, blank=True)
+    is_admin = models.BooleanField(default=False)  # NEW
     added_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
