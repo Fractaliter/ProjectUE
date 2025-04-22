@@ -40,29 +40,49 @@ def onboarding_progress(request, membership_id):
 def onboarding_setup(request, project_id):
     project = get_object_or_404(Project, id=project_id)
     roles = ProjectRole.objects.filter(project=project)
-    task_form = CreateOnboardingTaskTemplateForm()
-    step_form = CreateOnboardingStepForm()
 
     if request.method == 'POST':
         if 'add_task' in request.POST:
             task_form = CreateOnboardingTaskTemplateForm(request.POST)
+            step_form = CreateOnboardingStepForm()
             if task_form.is_valid():
-                task_form.save()
-                messages.success(request, "Task added successfully.")
+                task = task_form.save(commit=False)
+                if task.step.role.project_id == project.id:
+                    task.save()
+                    messages.success(request, "Task added successfully.")
+                else:
+                    messages.error(request, "Invalid step: does not belong to this project.")
                 return redirect('onboarding_setup', project_id=project_id)
 
         elif 'add_step' in request.POST:
             step_form = CreateOnboardingStepForm(request.POST)
+            task_form = CreateOnboardingTaskTemplateForm()
             if step_form.is_valid():
-                step_form.save()
-                messages.success(request, "Step added successfully.")
+                step = step_form.save(commit=False)
+                if step.role.project_id == project.id:
+                    step.save()
+                    messages.success(request, "Step added successfully.")
+                else:
+                    messages.error(request, "Invalid role: does not belong to this project.")
                 return redirect('onboarding_setup', project_id=project_id)
 
         elif 'delete_task' in request.POST:
             task_id = request.POST.get("task_id")
-            OnboardingTaskTemplate.objects.filter(id=task_id).delete()
-            messages.success(request, "Task deleted.")
+            task = OnboardingTaskTemplate.objects.filter(id=task_id).first()
+            if task and task.step.role.project_id == project.id:
+                task.delete()
+                messages.success(request, "Task deleted.")
+            else:
+                messages.error(request, "Invalid task or not part of this project.")
             return redirect('onboarding_setup', project_id=project_id)
+
+    else:
+        task_form = CreateOnboardingTaskTemplateForm()
+        step_form = CreateOnboardingStepForm()
+
+    # Nadpisujemy querysety formularzy, żeby wyświetlały tylko role i stepy z tego projektu:
+    task_form.fields['step'].queryset = OnboardingStep.objects.filter(role__project=project)
+    step_form.fields['role'].queryset = roles
 
     context = {
         'project': project,
@@ -71,6 +91,7 @@ def onboarding_setup(request, project_id):
         'step_form': step_form,
     }
     return render(request, 'webapp/onboarding_setup.html', context)
+
 
 @login_required
 def onboarding_dashboard(request, membership_id):
