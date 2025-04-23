@@ -7,10 +7,11 @@ from django.utils import timezone
 from django.contrib.auth.models import auth
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
-from webapp.models import Contact, Project, ProjectTask, User,UserProfile, UserRole, ProjectRole, ProjectMembership, OnboardingStep, OnboardingTaskTemplate, OnboardingTask, OnboardingProgress
+from webapp.models import Contact, Project, ProjectTask, User,UserProfile, UserRole, ProjectRole, ProjectMembership, OnboardingStep, OnboardingTaskTemplate, OnboardingTask, OnboardingProgress, BaseTask
 from django.contrib import messages
 from webapp.spotify_utils import get_artist_info
 from django.http import HttpResponse
+from django.views.decorators.http import require_POST
 
 @login_required
 def onboarding_progress(request, membership_id):
@@ -165,3 +166,26 @@ def onboarding_projects(request):
         'memberships': memberships,
     }
     return render(request, 'webapp/onboarding_projects.html', context)
+
+@login_required
+@require_POST
+def restart_onboarding(request, membership_id):
+    membership = get_object_or_404(ProjectMembership, id=membership_id, user=request.user)
+
+    # Usuń istniejące zadania onboardingowe użytkownika
+    OnboardingTask.objects.filter(membership=membership).delete()
+
+    # Utwórz ponownie zadania na podstawie szablonów
+    templates = OnboardingTaskTemplate.objects.filter(step__role=membership.role)
+    for template in templates:
+        OnboardingTask.objects.create(
+            title=template.title,
+            description=template.description,
+            assigned_to=membership.user,
+            status=BaseTask.TaskStatus.TODO,
+            template=template,
+            membership=membership,
+        )
+
+    messages.success(request, "Onboarding has been restarted with default tasks.")
+    return redirect('onboarding_dashboard', membership_id=membership.id)

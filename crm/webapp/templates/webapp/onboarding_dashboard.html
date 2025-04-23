@@ -71,14 +71,6 @@
           {% endfor %}
         </tbody>
       </table>      
-
-      <h6>Add Custom Task to This Step</h6>
-      <form method="post" class="mb-4">
-        {% csrf_token %}
-        <input type="hidden" name="custom_step_id" value="{{ step.id }}">
-        {{ custom_task_form|crispy }}
-        <button type="submit" class="btn btn-outline-primary btn-sm">Add Task</button>
-      </form>
     </div>
     <hr>
   {% endfor %}
