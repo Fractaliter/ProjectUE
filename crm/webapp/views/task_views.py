@@ -2,7 +2,7 @@ import csv
 from django.shortcuts import render, redirect, get_object_or_404
 from webapp.forms import (CreateUserForm, LoginForm, CreateContactForm, ContactForm, UpdateContactForm, TaskForm, ProjectForm, CreateRoleForm,
                     AssignProjectRoleForm, AddMemberForm, CreateProjectRoleForm, CreateOnboardingTaskForm,UpdateProgressForm,CreateOnboardingTaskTemplateForm, CreateOnboardingStepForm)
-from django.db.models import Count, Sum
+from django.db.models import Count, Sum, Q
 from django.utils import timezone
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -13,8 +13,13 @@ from django.http import HttpResponse
 
 @login_required
 def create_task(request):
+    user_projects = Project.objects.filter(
+        Q(memberships__user=request.user) | Q(creator=request.user)
+    ).distinct()
+
     if request.method == 'POST':
         form = TaskForm(request.POST)
+        form.fields['project'].queryset = user_projects
         if form.is_valid():
             task = form.save(commit=False)
             task.assigned_to = request.user
@@ -22,8 +27,9 @@ def create_task(request):
             return redirect('task_detail', task_id=task.id)
     else:
         form = TaskForm()
-    return render(request, 'webapp/task_form.html', {'form': form})
+        form.fields['project'].queryset = user_projects
 
+    return render(request, 'webapp/task_form.html', {'form': form})
 
 def task_list(request):
     tasks = ProjectTask.objects.all()

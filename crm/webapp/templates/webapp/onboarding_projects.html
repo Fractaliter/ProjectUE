@@ -36,6 +36,13 @@
                                 <a href="{% url 'onboarding_dashboard' m.id %}" class="btn btn-outline-secondary btn-sm">
                                     <i class="fa fa-sign-in"></i> View
                                 </a>
+                                <form method="post" action="{% url 'restart_onboarding' m.id %}" class="d-inline">
+                                 {% csrf_token %}
+                                 <button type="submit" class="btn btn-outline-danger btn-sm"
+                                         onclick="return confirm('Are you sure you want to restart onboarding?')">
+                                   🔄 Restart Onboarding
+                                  </button>
+                                </form>
                             {% endif %}
                         {% endfor %}
                     </td>
