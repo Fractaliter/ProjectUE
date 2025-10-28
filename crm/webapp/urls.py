@@ -28,7 +28,7 @@ from webapp.views.user_management_views import (
 )
 
 from webapp.views.onboarding_views import (
-    onboarding_dashboard, onboarding_setup, update_onboarding_progress,onboarding_projects
+    onboarding_dashboard, onboarding_setup, update_onboarding_progress,onboarding_projects,restart_onboarding
 )
 
 from webapp.views.llm_onboarding_views import (
@@ -94,5 +94,7 @@ urlpatterns = [
 
     path('tasks/<int:task_id>/complete/', mark_task_complete, name='mark_task_complete'),
     path('tasks/<int:task_id>/in-progress/', mark_task_in_progress, name='mark_task_in_progress'),
-    path('tasks/<int:task_id>/reset/', reset_task_to_do, name='reset_task_to_do')
+    path('tasks/<int:task_id>/reset/', reset_task_to_do, name='reset_task_to_do'),
+    path('onboarding/<int:membership_id>/restart/', restart_onboarding, name='restart_onboarding'),
+    path('onboarding_projects', onboarding_projects, name="onboarding_projects")
 ]

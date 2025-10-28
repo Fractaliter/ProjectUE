@@ -2,7 +2,7 @@ import csv
 from django.shortcuts import render, redirect, get_object_or_404
 from webapp.forms import (CreateUserForm, LoginForm, CreateContactForm, ContactForm, UpdateContactForm, TaskForm, ProjectForm, CreateRoleForm,
                     AssignProjectRoleForm, AddMemberForm, CreateProjectRoleForm, CreateProjectForm, CreateOnboardingTaskForm,UpdateProgressForm,CreateOnboardingTaskTemplateForm, CreateOnboardingStepForm)
-from django.db.models import Count, Sum
+from django.db.models import Count, Sum, F,Q
 from django.utils import timezone
 from django.contrib.auth.models import auth
 from django.contrib.auth import authenticate
@@ -53,6 +53,26 @@ def statistics_dashboard(request):
         'end_date': end_date,
         'total_duration': total_duration
     }
+    onboarding_stats = ProjectMembership.objects.annotate(
+        username=F('user__username'),                                   
+        project_name=F('project__name'),
+        role_name=F('role__name'),
+        total_tasks=Count('user_onboarding_tasks__template', distinct=True),
+        completed_tasks=Count('user_onboarding_tasks', filter=Q(user_onboarding_tasks__completed=True), distinct=True)
+    ).values(
+        'username', 'project_name', 'role_name', 'total_tasks', 'completed_tasks'
+    ) 
+
+    for entry in onboarding_stats:
+        entry["completion_percent"] = (
+            round((entry["completed_tasks"] / entry["total_tasks"]) * 100, 2)
+            if entry["total_tasks"] else 0
+        )
+
+    context.update({
+        'onboarding_stats': onboarding_stats
+    })
+
     return render(request, 'webapp/statistics_dashboard.html', context)
 
 

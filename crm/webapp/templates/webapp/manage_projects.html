@@ -28,7 +28,14 @@
   {% for project in projects %}
     <div class="card mb-4 shadow-sm">
       <div class="card-header d-flex justify-content-between align-items-center">
-        <strong>{{ project.name }}</strong>
+        <strong>{{ project.name }}</strong><br>
+        <small class="text-muted">
+          {% if project.creator %}
+            Created by {{ project.creator.username }}
+          {% else %}
+            Creator not set
+          {% endif %}
+        </small>
         <form method="post" class="m-0">
           {% csrf_token %}
           <input type="hidden" name="action" value="delete_project">
