@@ -1,0 +1,469 @@
+{% extends 'webapp/base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3><i class="fas fa-robot"></i> AI-Assisted Onboarding</h3>
+                    <p class="mb-0">Generate an onboarding plan using AI</p>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> 
+                        <strong>How does it work?</strong><br>
+                        The system uses AI (Hugging Face) to analyze project documentation and automatically 
+                        generate onboarding steps and tasks for the selected role. 
+                        The generated plan can be reviewed, edited, and approved before saving.
+                    </div>
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <h5>Project: {{ project.name }}</h5>
+                            <p class="text-muted">{{ project.description }}</p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="role_id" class="form-label">
+                                <strong>1. Select Role</strong> <span class="text-danger">*</span>
+                            </label>
+                            <select name="role_id" id="role_id" class="form-control" required>
+                                <option value="">-- Select Role --</option>
+                                {% for role in roles %}
+                                <option value="{{ role.id }}">{{ role.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <small class="text-muted">AI will generate an onboarding plan tailored to this role</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="project_stack" class="form-label">
+                                <strong>2. Project Technology Stack</strong>
+                            </label>
+                            <input type="text" 
+                                   name="project_stack" 
+                                   id="project_stack" 
+                                   class="form-control" 
+                                   placeholder="e.g. Django 4.2, PostgreSQL, Redis, Docker, React">
+                            <small class="text-muted">Helps AI better match tasks to the technologies used</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <strong>3. Select Source Documentation</strong> (optional)
+                            </label>
+                            
+                            {% if documents %}
+                            <div class="border rounded p-3 bg-light">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="mb-0">Available Documents</h6>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" id="refreshStatusBtn">
+                                        <i class="fas fa-sync-alt"></i> Refresh Status
+                                    </button>
+                                </div>
+                                
+                                <div id="statusSummary" class="mb-3" style="display: none;">
+                                    <div class="row text-center">
+                                        <div class="col">
+                                            <span class="badge bg-secondary" id="pendingCount">0</span>
+                                            <small class="d-block">Pending</small>
+                                        </div>
+                                        <div class="col">
+                                            <span class="badge bg-warning" id="processingCount">0</span>
+                                            <small class="d-block">Processing</small>
+                                        </div>
+                                        <div class="col">
+                                            <span class="badge bg-success" id="completedCount">0</span>
+                                            <small class="d-block">Completed</small>
+                                        </div>
+                                        <div class="col">
+                                            <span class="badge bg-danger" id="failedCount">0</span>
+                                            <small class="d-block">Failed</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {% for doc in documents %}
+                                <div class="form-check mb-2" data-doc-id="{{ doc.id }}">
+                                    <input class="form-check-input" 
+                                           type="checkbox" 
+                                           name="document_ids" 
+                                           value="{{ doc.id }}" 
+                                           id="doc_{{ doc.id }}">
+                                    <label class="form-check-label" for="doc_{{ doc.id }}">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <i class="fas fa-file-alt"></i> {{ doc.title }} 
+                                                <span class="badge bg-secondary">{{ doc.doc_type }}</span>
+                                                <small class="text-muted d-block">
+                                                    Added: {{ doc.uploaded_at|date:"M d, Y" }}
+                                                </small>
+                                            </div>
+                                            <div class="document-status" data-doc-id="{{ doc.id }}">
+                                                <span class="badge bg-secondary" id="status-{{ doc.id }}">Pending</span>
+                                                <div class="progress mt-1" style="width: 100px; height: 4px;" id="progress-{{ doc.id }}" style="display: none;">
+                                                    <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                No documents available. AI will generate a basic plan.
+                                <a href="{% url 'upload_document' project_id=project.id %}" class="alert-link">
+                                    Add Documentation →
+                                </a>
+                            </div>
+                            {% endif %}
+                            
+                            <small class="text-muted">
+                                Selected documents will be analyzed by AI
+                            </small>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{% url 'onboarding_setup' project_id=project.id %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg" id="generateBtn" {% if not is_admin %}disabled{% endif %}>
+                                <i class="fas fa-magic"></i> Generate Onboarding Plan
+                            </button>
+                            {% if not is_admin %}
+                            <small class="text-muted d-block mt-2">
+                                <i class="fas fa-lock"></i> Admin access required to generate AI plans
+                            </small>
+                            {% endif %}
+                        </div>
+                    </form>
+
+                    <div class="mt-4 p-3 bg-light rounded">
+                        <h6><i class="fas fa-clock"></i> Estimated Generation Time</h6>
+                        <p class="mb-0 text-muted">
+                            First run: ~30-60 seconds (model loading)<br>
+                            Subsequent generations: ~5-10 seconds
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+<!-- Admin Error Modal -->
+<div class="modal fade" id="adminErrorModal" tabindex="-1" aria-labelledby="adminErrorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="adminErrorModalLabel">
+                    <i class="fas fa-exclamation-triangle"></i> Access Denied
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <h6><i class="fas fa-lock"></i> Admin Access Required</h6>
+                    <p class="mb-0">You need to be a project administrator to generate AI onboarding plans.</p>
+                </div>
+                <div class="mt-3">
+                    <h6>How to get admin access:</h6>
+                    <ul>
+                        <li>Ask the project owner to make you an admin</li>
+                        <li>Contact your team lead for permissions</li>
+                        <li>Check with the project creator</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="{% url 'onboarding_setup' project_id=project.id %}" class="btn btn-primary">
+                    <i class="fas fa-arrow-left"></i> Back to Setup
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Status Refresh Modal -->
+<div class="modal fade" id="statusRefreshModal" tabindex="-1" aria-labelledby="statusRefreshModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="statusRefreshModalLabel">
+                    <i class="fas fa-sync-alt fa-spin"></i> Refreshing Status
+                </h5>
+            </div>
+            <div class="modal-body text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3 mb-0">Updating document processing status...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Modal -->
+<div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="loadingModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center py-4">
+                <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <h5 class="mb-3">Generating Onboarding Plan</h5>
+                <p class="text-muted mb-3">AI is analyzing your documentation and creating a personalized onboarding plan...</p>
+                <div class="progress mb-3" style="height: 6px;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%" id="progressBar"></div>
+                </div>
+                <div class="loading-steps">
+                    <div class="step active" id="step1">
+                        <i class="fas fa-robot text-primary"></i> Loading AI model...
+                    </div>
+                    <div class="step" id="step2">
+                        <i class="fas fa-file-alt text-muted"></i> Analyzing documentation...
+                    </div>
+                    <div class="step" id="step3">
+                        <i class="fas fa-cogs text-muted"></i> Generating plan...
+                    </div>
+                    <div class="step" id="step4">
+                        <i class="fas fa-check text-muted"></i> Finalizing...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.loading-steps {
+    text-align: left;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.step {
+    padding: 8px 0;
+    font-size: 14px;
+    opacity: 0.5;
+    transition: all 0.3s ease;
+}
+
+.step.active {
+    opacity: 1;
+    color: #0d6efd;
+}
+
+.step.completed {
+    opacity: 1;
+    color: #198754;
+}
+
+.step i {
+    margin-right: 8px;
+    width: 16px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing...');
+    const form = document.querySelector('form');
+    const generateBtn = document.getElementById('generateBtn');
+    const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+    const progressBar = document.getElementById('progressBar');
+    
+    form.addEventListener('submit', function(e) {
+        // Show loading modal
+        loadingModal.show();
+        
+        // Disable the button
+        generateBtn.disabled = true;
+        generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+        
+        // Simulate progress
+        let progress = 0;
+        let currentStep = 1;
+        
+        const progressInterval = setInterval(() => {
+            progress += Math.random() * 15;
+            if (progress > 100) progress = 100;
+            
+            progressBar.style.width = progress + '%';
+            
+            // Update steps
+            if (progress > 25 && currentStep === 1) {
+                document.getElementById('step1').classList.remove('active');
+                document.getElementById('step1').classList.add('completed');
+                document.getElementById('step2').classList.add('active');
+                currentStep = 2;
+            } else if (progress > 50 && currentStep === 2) {
+                document.getElementById('step2').classList.remove('active');
+                document.getElementById('step2').classList.add('completed');
+                document.getElementById('step3').classList.add('active');
+                currentStep = 3;
+            } else if (progress > 75 && currentStep === 3) {
+                document.getElementById('step3').classList.remove('active');
+                document.getElementById('step3').classList.add('completed');
+                document.getElementById('step4').classList.add('active');
+                currentStep = 4;
+            }
+            
+            if (progress >= 100) {
+                clearInterval(progressInterval);
+                document.getElementById('step4').classList.remove('active');
+                document.getElementById('step4').classList.add('completed');
+            }
+        }, 500);
+        
+        // The form will submit normally, modal will be closed by page redirect
+    });
+    
+    // Document status tracking
+    const refreshStatusBtn = document.getElementById('refreshStatusBtn');
+    const statusSummary = document.getElementById('statusSummary');
+    
+    console.log('Refresh button element:', refreshStatusBtn);
+    console.log('Status summary element:', statusSummary);
+    
+    function updateDocumentStatus() {
+        console.log('Updating document status...');
+        const url = `{% url 'document_status_api' project_id=project.id %}`;
+        console.log('Fetching from:', url);
+        
+        return fetch(url)
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Status data received:', data);
+                if (data.error) {
+                    console.error('Error fetching status:', data.error);
+                    return;
+                }
+                
+                // Update status summary
+                document.getElementById('pendingCount').textContent = data.status_summary.pending;
+                document.getElementById('processingCount').textContent = data.status_summary.processing;
+                document.getElementById('completedCount').textContent = data.status_summary.completed;
+                document.getElementById('failedCount').textContent = data.status_summary.failed;
+                
+                // Show summary if there are any non-pending documents
+                if (data.status_summary.processing > 0 || data.status_summary.completed > 0 || data.status_summary.failed > 0) {
+                    statusSummary.style.display = 'block';
+                }
+                
+                // Update individual document statuses
+                data.documents.forEach(doc => {
+                    const statusElement = document.getElementById(`status-${doc.id}`);
+                    const progressElement = document.getElementById(`progress-${doc.id}`);
+                    const progressBar = progressElement.querySelector('.progress-bar');
+                    
+                    if (statusElement) {
+                        // Update status badge
+                        statusElement.textContent = doc.ai_generation_status.charAt(0).toUpperCase() + doc.ai_generation_status.slice(1);
+                        statusElement.className = 'badge';
+                        
+                        switch(doc.ai_generation_status) {
+                            case 'pending':
+                                statusElement.classList.add('bg-secondary');
+                                break;
+                            case 'processing':
+                                statusElement.classList.add('bg-warning');
+                                break;
+                            case 'completed':
+                                statusElement.classList.add('bg-success');
+                                break;
+                            case 'failed':
+                                statusElement.classList.add('bg-danger');
+                                break;
+                            case 'skipped':
+                                statusElement.classList.add('bg-info');
+                                break;
+                        }
+                        
+                        // Update progress bar
+                        if (doc.ai_generation_status === 'processing') {
+                            progressElement.style.display = 'block';
+                            progressBar.style.width = doc.ai_processing_progress + '%';
+                        } else {
+                            progressElement.style.display = 'none';
+                        }
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching document status:', error);
+                // Show error message to user
+                if (statusSummary) {
+                    statusSummary.innerHTML = '<div class="alert alert-danger">Error loading status. Please try again.</div>';
+                    statusSummary.style.display = 'block';
+                }
+            });
+    }
+    
+    // Refresh status on button click
+    if (refreshStatusBtn) {
+        console.log('Refresh button found, adding event listener');
+        refreshStatusBtn.addEventListener('click', function(e) {
+            console.log('Refresh button clicked!');
+            e.preventDefault();
+            
+            // Show refresh popup
+            const statusRefreshModal = new bootstrap.Modal(document.getElementById('statusRefreshModal'));
+            statusRefreshModal.show();
+            
+            // Update status and hide popup when done
+            updateDocumentStatus().then(() => {
+                setTimeout(() => {
+                    statusRefreshModal.hide();
+                }, 1000); // Hide after 1 second
+            }).catch(() => {
+                setTimeout(() => {
+                    statusRefreshModal.hide();
+                }, 1000);
+            });
+        });
+    } else {
+        console.error('Refresh button not found!');
+    }
+    
+    // Auto-refresh every 5 seconds if there are processing documents
+    setInterval(() => {
+        fetch(`{% url 'document_status_api' project_id=project.id %}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.status_summary && data.status_summary.processing > 0) {
+                    updateDocumentStatus();
+                }
+            })
+            .catch(error => {
+                console.error('Auto-refresh error:', error);
+            });
+    }, 5000);
+    
+    // Initial status update
+    console.log('Running initial status update...');
+    updateDocumentStatus();
+    
+    // Show admin error popup if needed
+    {% if show_admin_error %}
+    const adminErrorModal = new bootstrap.Modal(document.getElementById('adminErrorModal'));
+    adminErrorModal.show();
+    {% endif %}
+});
+</script>
+
+

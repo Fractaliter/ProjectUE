@@ -36,8 +36,19 @@ def manage_projects(request):
             if add_member_form.is_valid():
                 membership = add_member_form.save(commit=False)
                 membership.project = project
-                membership.save()
-                messages.success(request, f"{membership.user.username} added to project '{membership.project.name}' and onboarding tasks assigned.")
+                
+                # Check if membership already exists
+                existing_membership = ProjectMembership.objects.filter(
+                    user=membership.user,
+                    project=membership.project
+                ).first()
+                
+                if existing_membership:
+                    messages.warning(request, f"{membership.user.username} is already a member of project '{membership.project.name}'.")
+                else:
+                    membership.save()
+                    messages.success(request, f"{membership.user.username} added to project '{membership.project.name}' and onboarding tasks assigned.")
+                
                 return redirect('manage_projects')
             
         elif action == 'create_role':

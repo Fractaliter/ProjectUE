@@ -1,0 +1,99 @@
+{% extends 'webapp/base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h3><i class="fas fa-upload"></i> Add Project Documentation</h3>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">
+                        Source documents help AI better understand the project specifics and generate 
+                        a more accurate onboarding plan.
+                    </p>
+
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="title" class="form-label">
+                                Document Title <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" 
+                                   name="title" 
+                                   id="title" 
+                                   class="form-control" 
+                                   required
+                                   placeholder="e.g. Guide for new developers">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="doc_type" class="form-label">
+                                Document Type <span class="text-danger">*</span>
+                            </label>
+                            <select name="doc_type" id="doc_type" class="form-control" required>
+                                <option value="txt">Text (.txt)</option>
+                                <option value="md">Markdown (.md)</option>
+                                <option value="html">HTML</option>
+                                <option value="pdf">PDF</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="content" class="form-label">
+                                Document Content
+                            </label>
+                            <textarea name="content" 
+                                      id="content" 
+                                      class="form-control" 
+                                      rows="10"
+                                      placeholder="Paste document content here..."></textarea>
+                            <small class="text-muted">Or upload file below</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="file" class="form-label">
+                                File Upload (optional)
+                            </label>
+                            <input type="file" 
+                                   name="file" 
+                                   id="file" 
+                                   class="form-control"
+                                   accept=".txt,.md,.html,.pdf">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="url" class="form-label">
+                                Document URL (optional)
+                            </label>
+                            <input type="url" 
+                                   name="url" 
+                                   id="url" 
+                                   class="form-control"
+                                   placeholder="https://...">
+                        </div>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'llm_onboarding_generate' project_id=project.id %}" 
+                               class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Document
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+

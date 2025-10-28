@@ -31,6 +31,12 @@ from webapp.views.onboarding_views import (
     onboarding_dashboard, onboarding_setup, update_onboarding_progress,onboarding_projects
 )
 
+from webapp.views.llm_onboarding_views import (
+    llm_onboarding_generate, llm_onboarding_review, 
+    llm_onboarding_edit_draft, upload_document, document_status_api,
+    llm_onboarding_generate_sync
+)
+
 from webapp.views.statistics_views import (
     statistics_dashboard, export_tasks_csv
 )
@@ -74,10 +80,19 @@ urlpatterns = [
     path('onboarding/<int:membership_id>/', onboarding_dashboard, name='onboarding_dashboard'),
     path('onboarding/progress/<int:progress_id>/update/', update_onboarding_progress, name='update_onboarding_progress'),
     path('projects/<int:project_id>/onboarding-setup/', onboarding_setup, name='onboarding_setup'),
-    path('projects/<int:project_id>/onboarding-setup/', onboarding_setup, name='onboarding_setup'),
+    path('onboarding_projects', onboarding_projects, name="onboarding_projects"),
+    
+    # LLM-ASSISTED ONBOARDING
+    path('projects/<int:project_id>/llm-onboarding/generate/', llm_onboarding_generate, name='llm_onboarding_generate'),
+    path('projects/<int:project_id>/llm-onboarding/review/', llm_onboarding_review, name='llm_onboarding_review'),
+    path('projects/<int:project_id>/llm-onboarding/edit/', llm_onboarding_edit_draft, name='llm_onboarding_edit_draft'),
+    path('projects/<int:project_id>/documents/upload/', upload_document, name='upload_document'),
+    path('projects/<int:project_id>/documents/status/', document_status_api, name='document_status_api'),
+    
+    # Synchronous generation endpoint (Railway free tier compatible)
+    path('projects/<int:project_id>/llm-onboarding/generate-sync/', llm_onboarding_generate_sync, name='llm_onboarding_generate_sync'),
 
     path('tasks/<int:task_id>/complete/', mark_task_complete, name='mark_task_complete'),
     path('tasks/<int:task_id>/in-progress/', mark_task_in_progress, name='mark_task_in_progress'),
-    path('tasks/<int:task_id>/reset/', reset_task_to_do, name='reset_task_to_do'),
-    path('onboarding_projects', onboarding_projects, name="onboarding_projects")
+    path('tasks/<int:task_id>/reset/', reset_task_to_do, name='reset_task_to_do')
 ]

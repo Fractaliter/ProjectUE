@@ -29,7 +29,10 @@ class AddMemberForm(forms.ModelForm):
 
     class Meta:
         model = ProjectMembership
-        fields = ['user', 'role']
+        fields = ['user', 'role', 'is_admin']
+        help_texts = {
+            'is_admin': 'Check this to make the user a project administrator (can generate onboarding, manage project settings)'
+        }
 
 class CreateProjectRoleForm(forms.ModelForm):
     project_id = forms.IntegerField(widget=forms.HiddenInput())

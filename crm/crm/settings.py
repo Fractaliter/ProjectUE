@@ -17,6 +17,33 @@ SESSION_COOKIE_SECURE = os.getenv("SESSION_COOKIE_SECURE", "False") == "True"
 SECRET_KEY = os.getenv("SECRET_KEY", "fallback-secret")
 DEBUG = os.getenv("DEBUG", "0") == "1"
 
+# Logging configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'webapp.llm_service': {
+            'handlers': ['console'],
+            'level': 'DEBUG',  # Enable DEBUG for LLM service
+            'propagate': False,
+        },
+        'webapp.views.llm_onboarding_views': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
+}
+
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
 
 CSRF_TRUSTED_ORIGINS = [
@@ -129,6 +156,17 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Media files (for document uploads)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# Celery configuration removed for Railway free tier compatibility
+
+# AI/LLM API Configuration
+# Together AI (Primary) - Fast, cheap, high quality
+TOGETHER_API_KEY = os.getenv('TOGETHER_API_KEY', '')
+TOGETHER_MODEL = os.getenv('TOGETHER_MODEL', 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo')
 
 
 

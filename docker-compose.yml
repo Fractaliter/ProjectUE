@@ -4,11 +4,13 @@ services:
     image: postgres:16
     container_name: postgres
     ports:
-      - "5432:5432"
+      - "5433:5432"
     env_file:
       - .env
     volumes:
       - pgdata:/var/lib/postgresql/data
+
+# Redis service removed - no longer needed without Celery
 
   web:
     build:
@@ -22,6 +24,8 @@ services:
       - .env
     depends_on:
       - db
+
+# Celery service removed for Railway free tier compatibility
 
 volumes:
   pgdata:

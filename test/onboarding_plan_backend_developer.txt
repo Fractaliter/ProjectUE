@@ -1,0 +1,57 @@
+📘 Onboarding Plan – Backend Developer (Django)
+
+🧩 Cel
+Wprowadzenie nowego developera w projekt oparty na Django 4.2, PostgreSQL, Redis i Dockerze, z zachowaniem standardów kodu, bezpieczeństwa i CI/CD.
+
+1. Przygotowanie środowiska
+- Zainstaluj Docker, Docker Compose i Python 3.12.
+- Sklonuj repozytorium projektu.
+- Utwórz plik .env na podstawie .env.example.
+- Uruchom aplikację komendą docker-compose up.
+✅ Kryterium akceptacji: aplikacja działa lokalnie pod localhost:8000.
+
+2. Konfiguracja środowiska developerskiego
+- Zainstaluj VS Code lub PyCharm.
+- Dodaj rozszerzenia: Black, Flake8, isort, Django Support.
+- Skonfiguruj lintera i formattera zgodnie z repozytorium.
+✅ Kryterium: brak błędów przy flake8 i black --check.
+
+3. Zapoznanie z architekturą projektu
+- Przejrzyj strukturę katalogów: models/, views/, forms/, templates/.
+- Zrozum podział modułów: auth, projects, tasks, onboarding, spotify.
+✅ Kryterium: developer potrafi wskazać zależności między modułami.
+
+4. Baza danych i migracje
+- Uruchom python manage.py makemigrations i migrate.
+- Zapoznaj się z psycopg2-binary i strukturą modeli.
+✅ Kryterium: migracje działają bez błędów.
+
+5. System ról i uprawnień
+- Poznaj model RBAC (Role-Based Access Control).
+- Utwórz przykładowe role w panelu admina i przypisz użytkowników.
+✅ Kryterium: dostęp użytkowników zgodny z oczekiwaniami roli.
+
+6. Onboarding i szablony zadań
+- Przejrzyj pliki onboarding/models.py i views.py.
+- Utwórz testowy szablon OnboardingTaskTemplate.
+✅ Kryterium: nowy użytkownik otrzymuje wygenerowany zestaw zadań.
+
+7. Integracja ze Spotify API
+- Przejrzyj integrację z biblioteką spotipy.
+- Utwórz token deweloperski i wykonaj zapytanie testowe.
+✅ Kryterium: zwrócono poprawną listę artystów w logach.
+
+8. Testy jednostkowe i integracyjne
+- Uruchom pytest lub python manage.py test.
+- Dodaj własny test w module tasks/tests.py.
+✅ Kryterium: testy przechodzą bez błędów.
+
+9. CI/CD i Docker
+- Przejrzyj pliki Dockerfile i docker-compose.yml.
+- Zapoznaj się z pipeline’em GitHub Actions.
+✅ Kryterium: zna proces build/test/deploy.
+
+10. Dobre praktyki i dokumentacja
+- Przeczytaj README.md i zasady kodowania w CONTRIBUTING.md.
+- Uzupełnij dokumentację onboardingową po zakończeniu pierwszego sprintu.
+✅ Kryterium: przekazałeś feedback do dokumentacji zespołowi.

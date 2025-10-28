@@ -7,3 +7,4 @@ from .user_management_views import *
 from .onboarding_views import *
 from .statistics_views import *
 from .spotify_views import *
+from .llm_onboarding_views import *

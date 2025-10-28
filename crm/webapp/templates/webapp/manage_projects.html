@@ -54,13 +54,9 @@
                   {% if member.is_admin %}
                     <span class="badge bg-primary">Admin</span>
                   {% endif %} —
-                  <span>
-                    {% if member.role %}
-                      {{ member.role.name }}
-                    {% else %}
-                      <em>No Role</em>
-                    {% endif %}
-                  </span>
+                  {% if member.role %}
+                    <span>{{ member.role.name }}</span>
+                  {% endif %}
                   <form method="post" class="m-0">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="delete_member">
